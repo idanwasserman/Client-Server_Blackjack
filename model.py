@@ -31,40 +31,40 @@ class Model:
         # TODO: save game stats
         print(self)
         return {
-            'switcher': QUIT
+            SWITCHER: QUIT
         }
 
     def hit_card(self):
         # Check player can hit more cards
         if not self.players_spots[self.curr_player] < Model.MAX_CARDS:
             return {
-                SWITCHER: 'show_message',
-                'message': 'You cannot have more than 5 cards! Your turn is over'
+                SWITCHER: SHOW_MSG,
+                MSG: f'You cannot have more than {Model.MAX_CARDS} cards! Your turn is over'
             }
 
         self._hit_player()
         spot = self.players_spots[self.curr_player] - 1
         ret_dict = {
-            SWITCHER: 'hit_card',
-            'card': self.players_cards[self.curr_player][spot],
-            'spot': spot,
-            'player_num': self.curr_player
+            SWITCHER: HIT_CARD,
+            CARD: self.players_cards[self.curr_player][spot],
+            SPOT: spot,
+            PLAYER_NUM: self.curr_player
         }
 
         if self.players_scores[self.curr_player] >= Model.BLACKJACK:
-            ret_dict[SWITCHER] = 'hit_card_show_message'
+            ret_dict[SWITCHER] = f'{HIT_CARD}_{SHOW_MSG}'
             if self.players_scores[self.curr_player] == Model.BLACKJACK:
-                ret_dict['message'] = 'You got BLACKJACK! Your turn is over'
+                ret_dict[MSG] = 'You got BLACKJACK! Your turn is over'
             else:
                 # TODO: check if there are ACES in cards
-                ret_dict['message'] = 'You got over BLACKJACK! Your turn is over'
+                ret_dict[MSG] = 'You got OVER BLACKJACK! Your turn is over'
 
         return ret_dict
 
     def _hit_player(self):
         card = self._grab_random_card_from_deck()
         if card is None:
-            raise Exception("card is None")
+            raise Exception('card is None')
         self.players_cards[self.curr_player].append(card)
         self.players_scores[self.curr_player] += card.real_value
         self.players_spots[self.curr_player] += 1
@@ -72,7 +72,7 @@ class Model:
     def _hit_dealer(self):
         card = self._grab_random_card_from_deck()
         if card is None:
-            raise Exception("card is None")
+            raise Exception('card is None')
         self.dealer_cards.append(card)
         self.dealer_score += card.real_value
         self.dealer_spot += 1
@@ -82,14 +82,14 @@ class Model:
         if self.curr_player >= self.num_of_players:
             return {
                 SWITCHER: STAND,
-                'message': "All players finished their turns. Dealer's turn",
-                'is_over': True
+                MSG: "All players finished their turns. Dealer's turn",
+                IS_OVER: True
             }
         else:
             return {
                 SWITCHER: STAND,
-                'message': f"It's player #{self.curr_player+1} turn",
-                'is_over': False
+                MSG: f"It's player #{self.curr_player+1} turn",
+                IS_OVER: False
             }
 
     def start_new_game(self):
