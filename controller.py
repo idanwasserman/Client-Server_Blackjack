@@ -95,22 +95,14 @@ class Controller:
             card, spot = ret_val
             self.view.show_card(-1, card, spot)
 
-        # Dealer's turn is over ; Check for winners
-        msg = self._get_results_msg()
-        print(msg)
-        self.view.show_message(msg)
-
-    def _get_results_msg(self):
-        winners, draws, losers = self.model.get_results()
-        msg = ''
-        msg += 'Winners: ' + ", ".join(map(str, winners)) + '\n'
-        msg += 'Draws: ' + ", ".join(map(str, draws)) + '\n'
-        msg += 'Losers: ' + ", ".join(map(str, losers))
-        return msg
+        # Dealer's turn is over -> Show results
+        self.view.show_message(self.model.get_results())
 
     def _new_game_started(self, dictionary):
         # Clear old cards
         self.view.clear_cards()
+        # Show message
+        self.view.show_message('Started a new game')
 
         # Update dealer's cards
         dealer_cards = dictionary[DEALER_CARDS]

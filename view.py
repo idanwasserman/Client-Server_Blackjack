@@ -22,7 +22,12 @@ class View(tk.Tk):
         self.controller = controller
         self.hidden_card = None
 
+        self.first_msg = 'Hello world'
+        self.second_msg = 'Blackjack game'
+        self.third_msg = ''
+
         self._make_main_frame()
+        self._make_text_label()
         self._make_dealer_frame()
         self._make_players_frames(num_of_players)
         self._make_buttons()
@@ -63,9 +68,18 @@ class View(tk.Tk):
                 label.config(image=blank_img)
                 label.image = blank_img
 
-    @staticmethod
-    def show_message(message):
-        tkinter.messagebox.showinfo(POP_UP, message)
+    def show_message(self, message):
+        # tkinter.messagebox.showinfo(POP_UP, message)
+        self.first_msg = self.second_msg
+        self.second_msg = self.third_msg
+        self.third_msg = message
+        self.output_text.set(self.first_msg + '\n\n' + self.second_msg + '\n\n' + self.third_msg)
+
+    def _make_text_label(self):
+        self.output_text = tk.StringVar()
+        self.label_text = tk.Label(self.main_frame, font=('Helvetica', 14), textvariable=self.output_text)
+        self.label_text.pack(side=tk.LEFT, padx=View.PAD)
+        self.output_text.set(self.first_msg + '\n\n' + self.second_msg)
 
     def _make_main_frame(self):
         self.main_frame = tk.Frame(self)

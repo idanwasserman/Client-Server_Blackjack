@@ -29,7 +29,7 @@ class Model:
 
     def quit(self):
         # TODO: save game stats
-        print(self)
+        print('TODO: save game stats')
         return {
             SWITCHER: QUIT
         }
@@ -39,7 +39,7 @@ class Model:
         if not self.players_spots[self.curr_player] < Model.MAX_CARDS:
             return {
                 SWITCHER: SHOW_MSG,
-                MSG: f'You cannot have more than {Model.MAX_CARDS} cards! Your turn is over'
+                MSG: f'You cannot have more than {Model.MAX_CARDS} cards!\nYour turn is over'
             }
 
         self._hit_player()
@@ -54,10 +54,10 @@ class Model:
         if self.players_scores[self.curr_player] >= Model.BLACKJACK:
             ret_dict[SWITCHER] = f'{HIT_CARD}_{SHOW_MSG}'
             if self.players_scores[self.curr_player] == Model.BLACKJACK:
-                ret_dict[MSG] = 'You got BLACKJACK! Your turn is over'
+                ret_dict[MSG] = f'{PLAYER} #{self.curr_player + 1} got BLACKJACK!'
             else:
                 # TODO: check if there are ACES in cards
-                ret_dict[MSG] = 'You got OVER BLACKJACK! Your turn is over'
+                ret_dict[MSG] = f'{PLAYER} #{self.curr_player + 1} got OVER BLACKJACK!'
 
         return ret_dict
 
@@ -82,19 +82,19 @@ class Model:
         if self.curr_player >= self.num_of_players:
             return {
                 SWITCHER: STAND,
-                MSG: "All players finished their turns. Dealer's turn",
+                MSG: "All players finished their turns\nDealer's turn",
                 IS_OVER: True
             }
         else:
             return {
                 SWITCHER: STAND,
-                MSG: f"It's player #{self.curr_player+1} turn",
+                MSG: f"{PLAYER} #{self.curr_player} finished his turn!\nIt's player #{self.curr_player+1} turn",
                 IS_OVER: False
             }
 
     def start_new_game(self):
         self.__init__(self.num_of_players, self.num_of_decks)
-        print('started a new game')
+        print('Model - started a new game')
         self.game_on = True
 
         # Each player (includes dealer) gets 2 cards
@@ -133,17 +133,17 @@ class Model:
             return None
 
     def get_results(self):
-        winners = []
-        draws = []
-        losers = []
-        for i in range(self.num_of_players):
-            curr_player_score = self.players_scores[i]
+        msg = f'{SCORES}:\n'
+        msg += f'{DEALER}: {self.dealer_score}\n'
+        for player_num in range(self.num_of_players):
+            curr_player_score = self.players_scores[player_num]
             lower_than_dealer = curr_player_score < self.dealer_score <= Model.BLACKJACK
             if curr_player_score > Model.BLACKJACK or lower_than_dealer:
-                losers.append(i + 1)
+                curr_result = LOST
             else:
                 if curr_player_score == self.dealer_score:
-                    draws.append(i + 1)
+                    curr_result = TIE
                 else:
-                    winners.append(i + 1)
-        return winners, draws, losers
+                    curr_result = WON
+            msg += f'{PLAYER} #{player_num + 1}: {self.players_scores[player_num]} ({curr_result})\n'
+        return msg
