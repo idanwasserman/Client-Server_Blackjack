@@ -1,11 +1,6 @@
 from card import *
 import random
 from constants import *
-import datetime
-
-
-def _add_timestamp_to_msg(msg):
-    return f'[{datetime.datetime.now()}]\n{msg}'
 
 
 class Model:
@@ -59,10 +54,10 @@ class Model:
         if self.players_scores[self.curr_player] >= Model.BLACKJACK:
             ret_dict[SWITCHER] = f'{HIT_CARD}_{SHOW_MSG}'
             if self.players_scores[self.curr_player] == Model.BLACKJACK:
-                ret_dict[MSG] = _add_timestamp_to_msg(f'{PLAYER} #{self.curr_player + 1} got BLACKJACK!')
+                ret_dict[MSG] = f'{PLAYER} #{self.curr_player + 1} got BLACKJACK!'
             else:
                 # TODO: check if there are ACES in cards
-                ret_dict[MSG] = _add_timestamp_to_msg(f'{PLAYER} #{self.curr_player + 1} got OVER BLACKJACK!')
+                ret_dict[MSG] = f'{PLAYER} #{self.curr_player + 1} got OVER BLACKJACK!'
 
         return ret_dict
 
@@ -87,14 +82,13 @@ class Model:
         if self.curr_player >= self.num_of_players:
             return {
                 SWITCHER: STAND,
-                MSG: _add_timestamp_to_msg("All players finished their turns\nDealer's turn"),
+                MSG: "All players finished their turns\nDealer's turn",
                 IS_OVER: True
             }
         else:
-            msg = f"{PLAYER} #{self.curr_player} finished his turn!\nIt's player #{self.curr_player+1} turn"
             return {
                 SWITCHER: STAND,
-                MSG: _add_timestamp_to_msg(msg),
+                MSG: f"{PLAYER} #{self.curr_player} finished his turn!\nIt's player #{self.curr_player+1} turn",
                 IS_OVER: False
             }
 
@@ -152,5 +146,4 @@ class Model:
                 else:
                     curr_result = WON
             msg += f'{PLAYER} #{player_num + 1}: {self.players_scores[player_num]} ({curr_result})\n'
-        msg += f'Game Over!\nPress [{START}] to start a new game'
-        return _add_timestamp_to_msg(msg)
+        return msg
