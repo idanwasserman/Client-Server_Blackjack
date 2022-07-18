@@ -102,7 +102,7 @@ class Controller:
         # Clear old cards
         self.view.clear_cards()
         # Show message
-        self.view.show_message('Started a new game')
+        self.view.show_message(self.model.new_game_message())
 
         # Update dealer's cards
         dealer_cards = dictionary[DEALER_CARDS]
