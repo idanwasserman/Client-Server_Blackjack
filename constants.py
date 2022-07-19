@@ -21,6 +21,10 @@ PLAYERS_CARDS = 'players_cards'
 PLAYERS_SPOTS = 'players_spots'
 PLAYERS = 'players'
 NEW_GAME = 'new_game'
+NEW_GAME_MSG = 'new_game_message'
+BOOL = 'boolean'
+NUM_PLAYERS = 'num_of_players'
+NUM_DECKS = 'num_of_decks'
 
 # view
 SERVER_TITLE = 'Blackjack Server'
@@ -42,3 +46,15 @@ DISCONNECT_MSG = '!DISCONNECT!'
 MIN_PLAYERS = 1
 MAX_PLAYERS = 3
 MAX_CLIENTS = 3
+
+
+DEALER_TURN = 'dealer_turn'
+GET_RESULTS = 'get_results'
+RESULTS = 'results'
+
+# card attributes
+SUIT = 'suit'
+VALUE = 'value'
+TEXT = 'text'
+REAL_VALUE = 'real_value'
+PATH = 'path'

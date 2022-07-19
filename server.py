@@ -3,23 +3,36 @@ import threading
 import tkinter as tk
 import os
 from constants import *
+from model import Model
+import json
 
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5050
 ADDR = (HOST, PORT)
+output_lock = threading.Semaphore(value=1)
+
+
+def _my_print(text):
+    output_lock.acquire()
+    print(text)
+    output_lock.release()
 
 
 def on_ct_button_clicked():
-    # main thread is server's GUI
-    # second thread is the server itself
-    if threading.activeCount() - 2 < MAX_CLIENTS:
+    """
+    on create table button clicked.
+    starting a new thread for the client.
+    main thread is server's GUI.
+    second thread is the server itself.
+    """
+    if _get_number_of_active_connections() < MAX_CLIENTS:
         num_of_players = int(nop_variable.get())
         num_of_decks = int(nod_variable.get())
         thread = threading.Thread(target=start_new_client, args=[num_of_players, num_of_decks])
         thread.start()
     else:
-        print(f"Cannot create more than {MAX_CLIENTS} tables")
+        _my_print(f'[ERROR] Cannot create more than {MAX_CLIENTS} tables')
         return
 
 
@@ -29,8 +42,48 @@ def start_new_client(num_of_players, num_of_decks):
     pass
 
 
+def _get_numbers(conn):
+    """
+    first thing receiving from client is numbers dictionary
+    input: conn- connection to the client
+    output: numbers_dict- dictionary containing number of players and number of decks
+    for the model of the client's table
+    """
+    numbers_dict = None
+    while True:
+        # receive length of upcoming data
+        data_length = conn.recv(HEADER).decode(FORMAT)
+        if not data_length:
+            continue
+
+        # receive data
+        data_length = int(data_length)
+        data = conn.recv(data_length).decode(FORMAT)
+
+        if data == DISCONNECT_MSG:
+            answer = {"disconnecting": True}
+        elif data:
+            numbers_dict = json.loads(data)
+            answer = {"disconnecting": False}
+        else:
+            continue
+
+        answer_to_send = json.dumps(answer).encode(FORMAT)
+        answer_length = str(len(answer_to_send)).encode(FORMAT)
+        answer_length += b' ' * (HEADER - len(answer_length))
+
+        conn.send(answer_length)
+        conn.send(answer_to_send)
+
+        if numbers_dict:
+            return numbers_dict
+
+
 def handle_client(conn, addr):
-    print(f'[NEW CONNECTION] {addr} connected')
+    _my_print(f'[NEW CONNECTION] {addr} connected')
+
+    numbers_dict = _get_numbers(conn)
+    model = Model(num_of_players=numbers_dict[NUM_PLAYERS], num_of_decks=numbers_dict[NUM_DECKS])
 
     connected = True
     while connected:
@@ -45,21 +98,28 @@ def handle_client(conn, addr):
 
         if data == DISCONNECT_MSG:
             connected = False
+            answer = {"disconnecting": True}
         else:
-            # TODO: do something with data received from client
-            answer = f"server answer for client's data: {data}"
-            conn.send(answer.encode(FORMAT))
-            pass
+            answer = model.process_data(data)
 
-        print(f'[{addr}] server got this data from client: {data}')
-        # conn.send("from server: data received".encode(FORMAT))
+        # encode answer
+        answer_to_send = json.dumps(answer).encode(FORMAT)
+
+        # compute answer length
+        answer_length = str(len(answer_to_send)).encode(FORMAT)
+        answer_length += b' ' * (HEADER - len(answer_length))
+
+        # send the length of answer and answer itself
+        conn.send(answer_length)
+        conn.send(answer_to_send)
 
     conn.close()
-    print(f'[ACTIVE CONNECTIONS] {threading.activeCount() - 2}')
+    _my_print(f'[ACTIVE CONNECTIONS] {_get_number_of_active_connections() - 1}')
 
 
 def start_server():
-    print(f'[LISTENING] server is listening on {HOST}')
+    _my_print(f'[LISTENING] server is listening on {HOST}')
+
     server.listen()
     server_on = True
     while True:
@@ -74,21 +134,22 @@ def start_server():
         thread = threading.Thread(target=handle_client, args=(conn, addr))
         thread.daemon = True
         thread.start()
-        print(f'[ACTIVE CONNECTIONS] {threading.activeCount() - 2}')
+        _my_print(f'[ACTIVE CONNECTIONS] {_get_number_of_active_connections()}')
 
-    print(f'[STOPPED] server has stopped')
+    _my_print('[STOPPED] server has stopped')
 
 
 def shut_down_server():
     # main thread is server's GUI
     # second thread is the server itself
-    if threading.activeCount() - 2 > 0:
-        print(f'[ERROR] cannot shut down server ; there are still {threading.activeCount() - 2} active clients')
+    if _get_number_of_active_connections() > 0:
+        _my_print(f'[ERROR] cannot shut down server ; there are still {_get_number_of_active_connections()} active clients')
         return
 
     global root, server
 
-    print(f'[SHUT DOWN] server is shutting down')
+    _my_print('[SHUT DOWN] server is shutting down')
+
     server.close()
 
     for widget in root.winfo_children():
@@ -97,7 +158,12 @@ def shut_down_server():
     root.destroy()
 
 
-print('[START] server is starting')
+def _get_number_of_active_connections():
+    return int((threading.activeCount() - 2) / 2)
+
+
+_my_print('[START] server is starting')
+
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 server_thread = threading.Thread(target=start_server)
