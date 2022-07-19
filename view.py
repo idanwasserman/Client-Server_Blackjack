@@ -1,5 +1,4 @@
 import tkinter as tk
-import tkinter.messagebox
 from card import *
 from constants import *
 
@@ -69,7 +68,6 @@ class View(tk.Tk):
                 label.image = blank_img
 
     def show_message(self, message):
-        # tkinter.messagebox.showinfo(POP_UP, message)
         self.first_msg = self.second_msg
         self.second_msg = self.third_msg
         self.third_msg = message
@@ -92,7 +90,7 @@ class View(tk.Tk):
         for caption in self.button_captions:
             btn = tk.Button(
                 frame, text=caption,
-                command=(lambda button=caption: self.controller.on_button_click(button))
+                command=(lambda button_caption=caption: self.controller.on_button_click(button_caption))
             )
             btn.pack(side=tk.LEFT, padx=self.PAD, pady=self.PAD)
 

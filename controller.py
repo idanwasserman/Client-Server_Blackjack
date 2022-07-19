@@ -2,6 +2,7 @@ from view import View
 from model import Model
 from constants import *
 import sys
+from client import MyClient
 
 
 class Controller:
@@ -9,6 +10,7 @@ class Controller:
     def __init__(self, num_of_players, num_of_decks):
         self.view = View(self, num_of_players)
         self.model = Model(num_of_players, num_of_decks)
+        self.client = MyClient()
 
     def main(self):
         self.view.main()
@@ -27,6 +29,7 @@ class Controller:
         if b1 == b2:
             return
 
+        print(self.client.send_recv_data(caption))
         func = self._button_string_to_function(caption)
         ret_dict = func()
         self._update_view(ret_dict)
@@ -56,6 +59,7 @@ class Controller:
         elif switcher == STAND:
             self._curr_player_turn_over(dictionary)
         elif switcher == QUIT:
+            self.client.send_recv_data(DISCONNECT_MSG)
             self.view.destroy_all()
             self.view.destroy()
 

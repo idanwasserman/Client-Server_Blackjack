@@ -3,6 +3,7 @@ START = 'Start'
 HIT = 'Hit'
 STAND = 'Stand'
 QUIT = 'Quit'
+CREATE_TABLE = 'Create table'
 
 # keys of data passing between modules
 HIT_CARD = 'hit_card'
@@ -22,6 +23,7 @@ PLAYERS = 'players'
 NEW_GAME = 'new_game'
 
 # view
+SERVER_TITLE = 'Blackjack Server'
 TITLE = 'Blackjack-1.0'
 DEALER = 'Dealer'
 PLAYER = 'Player'
@@ -32,3 +34,11 @@ LOST = 'Lost'
 TIE = 'Tie'
 WON = 'Won'
 SCORES = 'Scores'
+
+# client/server
+HEADER = 64
+FORMAT = 'utf-8'
+DISCONNECT_MSG = '!DISCONNECT!'
+MIN_PLAYERS = 1
+MAX_PLAYERS = 3
+MAX_CLIENTS = 3

@@ -37,11 +37,15 @@ class Model:
         return _add_timestamp_to_msg('Starting a new game')
 
     def quit(self):
-        # TODO: save game stats
-        print('TODO: save game stats')
+        self._save_game()
         return {
             SWITCHER: QUIT
         }
+
+    def _save_game(self):
+        # TODO: save game stats
+        print(f'TODO: save game stats\nModel: {str(self)}')
+        pass
 
     def hit_card(self):
         # Check player can hit more cards
@@ -157,4 +161,5 @@ class Model:
                     curr_result = WON
             msg += f'{PLAYER} #{player_num + 1}: {self.players_scores[player_num]} ({curr_result})\n'
 
+        msg += f'Game Over!\nPress [{START}] to start a new game'
         return _add_timestamp_to_msg(msg)
