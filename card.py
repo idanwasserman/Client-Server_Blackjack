@@ -5,12 +5,39 @@ VALUES = range(2, 15)  # 11 = J, 12 = Q, 13 = K, 14 = A
 CARDS_IMAGES_PATH = r'C:\seminar_client_server\Client-Server_Blackjack\images\cards'
 
 
-def _get_resized_image(path):
+class Card(dict):
+
+    def __init__(self, suit, value):
+        text = f'{value}_of_{suit}'
+        img_path = CARDS_IMAGES_PATH + f'\\{text}.png'
+        real_value = _compute_blackjack_value(value)
+        dict.__init__(self, suit=suit, value=value, text=text, real_value=real_value, path=img_path)
+
+
+def create_deck(num_of_decks):
+    deck = []
+    for i in range(num_of_decks):
+        for suit in SUITS:
+            for value in VALUES:
+                new_card = Card(value=value, suit=suit)
+                deck.append(new_card)
+    return deck
+
+
+def get_resized_image(path):
     # Open image
-    card_img = Image.open(path)
+    card_image = Image.open(path)
     # Resize image
-    resized_card_img = card_img.resize((70, 100))
+    resized_card_img = card_image.resize((70, 100))
     return ImageTk.PhotoImage(resized_card_img)
+
+
+def get_blank_card_image():
+    return get_resized_image(CARDS_IMAGES_PATH + '\\blank.png')
+
+
+def get_question_mark_card_image():
+    return get_resized_image(CARDS_IMAGES_PATH + '\\question_mark.png')
 
 
 def _compute_blackjack_value(value):
@@ -26,35 +53,3 @@ def _compute_blackjack_value(value):
     # if the card is royal card
     else:
         return 10
-
-
-class Card:
-
-    def __init__(self, suit, value):
-        self.suit = suit
-        self.value = value
-        self.text = f'{value}_of_{suit}'
-        img_path = CARDS_IMAGES_PATH + f'\\{self.text}.png'
-        self.image = _get_resized_image(img_path)
-        self.real_value = _compute_blackjack_value(value)
-
-    def __str__(self):
-        return f'Card: {self.value} of {self.suit}'
-
-    @staticmethod
-    def create_deck(num_of_decks):
-        deck = []
-        for i in range(num_of_decks):
-            for suit in SUITS:
-                for value in VALUES:
-                    new_card = Card(value=value, suit=suit)
-                    deck.append(new_card)
-        return deck
-
-    @staticmethod
-    def get_blank_card_image():
-        return _get_resized_image(CARDS_IMAGES_PATH + '\\blank.png')
-
-    @staticmethod
-    def get_question_mark_card_image():
-        return _get_resized_image(CARDS_IMAGES_PATH + '\\question_mark.png')
