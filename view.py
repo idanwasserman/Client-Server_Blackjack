@@ -1,5 +1,5 @@
 import tkinter as tk
-from card import *
+import card
 from constants import *
 
 
@@ -19,7 +19,7 @@ class View(tk.Tk):
         self.configure(background=GREEN)
 
         self.controller = controller
-        self.hidden_card = None
+        self.hidden_card_path = None
 
         self.first_msg = 'Hello world'
         self.second_msg = 'Blackjack game'
@@ -39,26 +39,29 @@ class View(tk.Tk):
             if isinstance(widget, tk.Toplevel):
                 widget.destroy()
 
-    def show_card(self, player_num, card, spot):
+    def show_card(self, player_num, card_to_show, spot):
+        curr_card_text = f'{card_to_show[VALUE]}_of_{card_to_show[SUIT]}'
+        curr_card_img = card.get_resized_image(f'{card.CARDS_IMAGES_PATH}\\{curr_card_text}.png')
         if player_num < 0:
-            self.dealer_cards_labels[spot].config(image=card.image)
-            self.dealer_cards_labels[spot].image = card.image
+            self.dealer_cards_labels[spot].config(image=curr_card_img)
+            self.dealer_cards_labels[spot].image = curr_card_img
         elif player_num < len(self.players_cards_labels):
-            self.players_cards_labels[player_num][spot].config(image=card.image)
-            self.players_cards_labels[player_num][spot].image = card.image
+            self.players_cards_labels[player_num][spot].config(image=curr_card_img)
+            self.players_cards_labels[player_num][spot].image = curr_card_img
 
-    def hide_card(self):
-        question_mark_img = Card.get_question_mark_card_image()
-        self.hidden_card = self.dealer_cards_labels[1][IMAGE]
+    def hide_card(self, path):
+        question_mark_img = card.get_question_mark_card_image()
+        self.hidden_card_path = path
         self.dealer_cards_labels[1].config(image=question_mark_img)
         self.dealer_cards_labels[1].image = question_mark_img
 
     def reveal_hidden_card(self):
-        self.dealer_cards_labels[1].config(image=self.hidden_card)
-        self.dealer_cards_labels[1].image = self.hidden_card
+        image = card.get_resized_image(self.hidden_card_path)
+        self.dealer_cards_labels[1].config(image=image)
+        self.dealer_cards_labels[1].image = image
 
     def clear_cards(self):
-        blank_img = Card.get_blank_card_image()
+        blank_img = card.get_blank_card_image()
         for label in self.dealer_cards_labels:
             label.config(image=blank_img)
             label.image = blank_img
@@ -100,7 +103,7 @@ class View(tk.Tk):
         dealer_frame.pack(pady=self.PAD)
 
         # Dealer's cards
-        blank_img = Card.get_blank_card_image()
+        blank_img = card.get_blank_card_image()
         self.dealer_cards_labels = []
         for spot in range(self.CARD_TOTAL_SPOTS):
             card_label = tk.Label(dealer_frame, text='', image=blank_img)
@@ -117,7 +120,7 @@ class View(tk.Tk):
             player_frame.pack(pady=self.PAD)
 
             # Player's cards
-            blank_img = Card.get_blank_card_image()
+            blank_img = card.get_blank_card_image()
             curr_player_cards_labels = []
             for spot in range(self.CARD_TOTAL_SPOTS):
                 card_label = tk.Label(player_frame, text='', image=blank_img)

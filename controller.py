@@ -1,16 +1,23 @@
 from view import View
-from model import Model
 from constants import *
 import sys
 from client import MyClient
+import card
+import json
 
 
 class Controller:
 
     def __init__(self, num_of_players, num_of_decks):
         self.view = View(self, num_of_players)
-        self.model = Model(num_of_players, num_of_decks)
         self.client = MyClient()
+        self.game_on = False
+
+        numbers_dict = {
+            NUM_PLAYERS: num_of_players,
+            NUM_DECKS: num_of_decks
+        }
+        self.client.send_recv_data(json.dumps(numbers_dict))
 
     def main(self):
         self.view.main()
@@ -25,27 +32,12 @@ class Controller:
         if game hasn't started -> can only start or quit
         """
         b1 = bool(caption == START or caption == QUIT)
-        b2 = self.model.game_on
+        b2 = self.game_on
         if b1 == b2:
             return
 
-        print(self.client.send_recv_data(caption))
-        func = self._button_string_to_function(caption)
-        ret_dict = func()
-        self._update_view(ret_dict)
-
-    """
-    input: caption of button which user has clicked
-    output: function to perform
-    """
-    def _button_string_to_function(self, caption):
-        buttons_switcher = {
-            START: self.model.start_new_game,
-            HIT: self.model.hit_card,
-            STAND: self.model.stand,
-            QUIT: self.model.quit
-        }
-        return buttons_switcher.get(caption)
+        server_answer = self.client.send_recv_data(caption)
+        self._update_view(server_answer)
 
     """
     input: dictionary with relevant objects and data to update view
@@ -64,7 +56,7 @@ class Controller:
             self.view.destroy()
 
         if HIT_CARD in switcher:
-            card_img = dictionary[CARD].image
+            card_img = card.get_resized_image(dictionary[CARD][PATH])
             spot = dictionary[SPOT]
             player_num = dictionary[PLAYER_NUM]
             self.view.players_cards_labels[player_num][spot].config(image=card_img)
@@ -72,8 +64,8 @@ class Controller:
 
         if SHOW_MSG in switcher:
             self.view.show_message(dictionary[MSG])
-            ret_val = self.model.stand()
-            self._curr_player_turn_over(ret_val)
+            server_answer = self.client.send_recv_data(STAND)
+            self._curr_player_turn_over(server_answer)
 
     """
     Current player has finished his turn.
@@ -92,37 +84,41 @@ class Controller:
     def _dealer_turn(self):
         self.view.reveal_hidden_card()
         while True:
-            ret_val = self.model.dealer_turn()
-            if ret_val is None:
+            server_answer = self.client.send_recv_data(DEALER_TURN)
+            if not server_answer[BOOL]:
                 break
 
-            card, spot = ret_val
-            self.view.show_card(-1, card, spot)
+            self.view.show_card(-1, server_answer[CARD], server_answer[SPOT])
 
         # Dealer's turn is over -> Show results
-        self.view.show_message(self.model.get_results())
+        server_answer = self.client.send_recv_data(GET_RESULTS)
+        self.view.show_message(server_answer[RESULTS])
+        self.game_on = False
 
     def _new_game_started(self, dictionary):
+        self.game_on = True
         # Clear old cards
         self.view.clear_cards()
         # Show message
-        self.view.show_message(self.model.new_game_message())
+        # self.view.show_message(self.model.new_game_message())
+        server_answer = self.client.send_recv_data(NEW_GAME_MSG)
+        self.view.show_message(server_answer[NEW_GAME_MSG])
 
         # Update dealer's cards
         dealer_cards = dictionary[DEALER_CARDS]
         for dealer_spot in dictionary[DEALER_SPOTS]:
-            curr_img = dealer_cards[dealer_spot].image
+            curr_img = card.get_resized_image(dealer_cards[dealer_spot][PATH])
             self.view.dealer_cards_labels[dealer_spot].config(image=curr_img)
             self.view.dealer_cards_labels[dealer_spot].image = curr_img
 
         # Hide 2nd dealer's card
-        self.view.hide_card()
+        self.view.hide_card(dealer_cards[1][PATH])
 
         # Update players' cards
         players_cards = dictionary[PLAYERS_CARDS]
         for player_num in dictionary[PLAYERS]:
             for player_spot in dictionary[PLAYERS_SPOTS]:
-                curr_img = players_cards[player_num][player_spot].image
+                curr_img = card.get_resized_image(players_cards[player_num][player_spot][PATH])
                 self.view.players_cards_labels[player_num][player_spot].config(image=curr_img)
                 self.view.players_cards_labels[player_num][player_spot].image = curr_img
 

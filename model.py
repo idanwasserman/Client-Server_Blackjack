@@ -1,4 +1,4 @@
-from card import *
+import card
 import random
 from constants import *
 import datetime
@@ -28,13 +28,15 @@ class Model:
         # Cards' spots
         self.dealer_spot = 0
         self.players_spots = [0] * self.num_of_players
-        self.deck = Card.create_deck(num_of_decks)
+        self.deck = card.create_deck(num_of_decks)
         # Current player playing
         self.curr_player = 0
 
     @staticmethod
     def new_game_message():
-        return _add_timestamp_to_msg('Starting a new game')
+        return {
+            NEW_GAME_MSG: _add_timestamp_to_msg('Starting a new game')
+        }
 
     def quit(self):
         self._save_game()
@@ -44,7 +46,6 @@ class Model:
 
     def _save_game(self):
         # TODO: save game stats
-        print(f'TODO: save game stats\nModel: {str(self)}')
         pass
 
     def hit_card(self):
@@ -75,19 +76,19 @@ class Model:
         return ret_dict
 
     def _hit_player(self):
-        card = self._grab_random_card_from_deck()
-        if card is None:
+        rand_card = self._grab_random_card_from_deck()
+        if rand_card is None:
             raise Exception('card is None')
-        self.players_cards[self.curr_player].append(card)
-        self.players_scores[self.curr_player] += card.real_value
+        self.players_cards[self.curr_player].append(rand_card)
+        self.players_scores[self.curr_player] += rand_card[REAL_VALUE]
         self.players_spots[self.curr_player] += 1
 
     def _hit_dealer(self):
-        card = self._grab_random_card_from_deck()
-        if card is None:
+        rand_card = self._grab_random_card_from_deck()
+        if rand_card is None:
             raise Exception('card is None')
-        self.dealer_cards.append(card)
-        self.dealer_score += card.real_value
+        self.dealer_cards.append(rand_card)
+        self.dealer_score += rand_card[REAL_VALUE]
         self.dealer_spot += 1
 
     def stand(self):
@@ -108,7 +109,7 @@ class Model:
 
     def start_new_game(self):
         self.__init__(self.num_of_players, self.num_of_decks)
-        print('Model - started a new game')
+        # print('Model - started a new game')
         self.game_on = True
 
         # Each player (includes dealer) gets 2 cards
@@ -130,21 +131,27 @@ class Model:
 
     def _grab_random_card_from_deck(self):
         try:
-            card = random.choice(self.deck)
+            rand_card = random.choice(self.deck)
         except ValueError as e:
             print(e)
             return None
-        self.deck.remove(card)
-        return card
+        self.deck.remove(rand_card)
+        return rand_card
 
     def dealer_turn(self):
         if self.dealer_score < 17 and self.dealer_spot < Model.MAX_CARDS:
             self._hit_dealer()
             spot = self.dealer_spot - 1
-            return self.dealer_cards[spot], spot
+            return {
+                CARD: self.dealer_cards[spot],
+                SPOT: spot,
+                BOOL: True
+            }
         else:
             self.game_on = False
-            return None
+            return {
+                BOOL: False
+            }
 
     def get_results(self):
         msg = f'{SCORES}:\n'
@@ -162,4 +169,19 @@ class Model:
             msg += f'{PLAYER} #{player_num + 1}: {self.players_scores[player_num]} ({curr_result})\n'
 
         msg += f'Game Over!\nPress [{START}] to start a new game'
-        return _add_timestamp_to_msg(msg)
+        return {
+            RESULTS: _add_timestamp_to_msg(msg)
+        }
+
+    def process_data(self, data):
+        func_dict = {
+            START: self.start_new_game,
+            HIT: self.hit_card,
+            STAND: self.stand,
+            QUIT: self.quit,
+            NEW_GAME_MSG: self.new_game_message,
+            DEALER_TURN: self.dealer_turn,
+            GET_RESULTS: self.get_results
+        }
+        ret_val = func_dict[data]()
+        return ret_val
