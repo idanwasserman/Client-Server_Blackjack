@@ -1,6 +1,7 @@
 from PIL import Image, ImageTk
+from constants import *
 
-SUITS = ['diamonds', 'clubs', 'hearts', 'spades']
+SUITS = [DIAMONDS, CLUBS, HEARTS, SPADES]
 VALUES = range(2, 15)  # 11 = J, 12 = Q, 13 = K, 14 = A
 CARDS_IMAGES_PATH = r'C:\seminar_client_server\Client-Server_Blackjack\images\cards'
 
@@ -14,12 +15,24 @@ class Card(dict):
         dict.__init__(self, suit=suit, value=value, text=text, real_value=real_value, path=img_path)
 
 
+class Ace_Card(Card):
+
+    ACE_VALUE = 14
+
+    def __init__(self, suit):
+        super().__init__(suit, Ace_Card.ACE_VALUE)
+        self[HIGH_VALUE] = True
+
+
 def create_deck(num_of_decks):
     deck = []
     for i in range(num_of_decks):
         for suit in SUITS:
             for value in VALUES:
-                new_card = Card(value=value, suit=suit)
+                if value == Ace_Card.ACE_VALUE:
+                    new_card = Ace_Card(suit=suit)
+                else:
+                    new_card = Card(value=value, suit=suit)
                 deck.append(new_card)
     return deck
 
@@ -41,14 +54,14 @@ def get_question_mark_card_image():
 
 
 def _compute_blackjack_value(value):
-    if value <= 0 or value > 14:
+    if value <= 0 or value > Ace_Card.ACE_VALUE:
         raise Exception(f"Illegal card value: {value}")
 
     # if the card is between 2-10
     if value <= 10:
         return value
     # if the card is 'Ace'
-    if value == 14:
+    if value == Ace_Card.ACE_VALUE:
         return 11
     # if the card is royal card
     else:

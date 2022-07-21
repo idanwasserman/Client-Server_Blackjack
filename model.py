@@ -70,7 +70,6 @@ class Model:
             if self.players_scores[self.curr_player] == Model.BLACKJACK:
                 ret_dict[MSG] = _add_timestamp_to_msg(f'{PLAYER} #{self.curr_player + 1} got BLACKJACK!')
             else:
-                # TODO: check if there are ACES in cards
                 ret_dict[MSG] = _add_timestamp_to_msg(f'{PLAYER} #{self.curr_player + 1} got OVER BLACKJACK!')
 
         return ret_dict
@@ -79,9 +78,18 @@ class Model:
         rand_card = self._grab_random_card_from_deck()
         if rand_card is None:
             raise Exception('card is None')
+
         self.players_cards[self.curr_player].append(rand_card)
         self.players_scores[self.curr_player] += rand_card[REAL_VALUE]
         self.players_spots[self.curr_player] += 1
+
+        if self.players_scores[self.curr_player] > Model.BLACKJACK:
+            for card_num in range(len(self.players_cards[self.curr_player])):
+                if self.players_cards[self.curr_player][card_num][VALUE] == card.Ace_Card.ACE_VALUE:
+                    if self.players_cards[self.curr_player][card_num][HIGH_VALUE]:
+                        self.players_cards[self.curr_player][card_num][HIGH_VALUE] = False
+                        self.players_scores[self.curr_player] -= 10
+                        break
 
     def _hit_dealer(self):
         rand_card = self._grab_random_card_from_deck()

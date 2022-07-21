@@ -58,3 +58,10 @@ VALUE = 'value'
 TEXT = 'text'
 REAL_VALUE = 'real_value'
 PATH = 'path'
+HIGH_VALUE = 'high_value'
+
+# card suits
+DIAMONDS = 'diamonds'
+CLUBS = 'clubs'
+HEARTS = 'hearts'
+SPADES = 'spades'
