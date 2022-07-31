@@ -46,6 +46,7 @@ DISCONNECT_MSG = '!DISCONNECT!'
 MIN_PLAYERS = 1
 MAX_PLAYERS = 3
 MAX_CLIENTS = 3
+MIN_USERNAME_LEN = 4
 
 
 DEALER_TURN = 'dealer_turn'
@@ -65,3 +66,7 @@ DIAMONDS = 'diamonds'
 CLUBS = 'clubs'
 HEARTS = 'hearts'
 SPADES = 'spades'
+
+# User
+USERNAME = 'username'
+USER_MONEY = 'user_money'
