@@ -12,6 +12,8 @@ PORT = 5050
 ADDR = (HOST, PORT)
 output_lock = threading.Semaphore(value=1)
 
+users_playing = []
+
 
 def _my_print(text):
     output_lock.acquire()
@@ -26,27 +28,37 @@ def on_ct_button_clicked():
     main thread is server's GUI.
     second thread is the server itself.
     """
+    username = username_entry.get()
+    if len(username) < MIN_USERNAME_LEN:
+        _my_print(f'[ERROR] Username must be at least {MIN_USERNAME_LEN} characters')
+        return
+
+    if username in users_playing:
+        _my_print(f'[ERROR] User {username} is already playing')
+        return
+
     if _get_number_of_active_connections() < MAX_CLIENTS:
+        users_playing.append(username)
         num_of_players = int(nop_variable.get())
         num_of_decks = int(nod_variable.get())
-        thread = threading.Thread(target=start_new_client, args=[num_of_players, num_of_decks])
+        thread = threading.Thread(target=start_new_client, args=[num_of_players, num_of_decks, username])
         thread.start()
     else:
         _my_print(f'[ERROR] Cannot create more than {MAX_CLIENTS} tables')
         return
 
 
-def start_new_client(num_of_players, num_of_decks):
+def start_new_client(num_of_players, num_of_decks, username):
     path = r'C:\seminar_client_server\Client-Server_Blackjack\controller.py'
-    os.system(f'python {path} {num_of_players} {num_of_decks}')
+    os.system(f'python {path} {num_of_players} {num_of_decks} {username} 1000')
     pass
 
 
-def _get_numbers(conn):
+def _get_model_info(conn):
     """
-    first thing receiving from client is numbers dictionary
+    first thing receiving from client is model information dictionary
     input: conn- connection to the client
-    output: numbers_dict- dictionary containing number of players and number of decks
+    output: model_info_dict- dictionary containing number of players, number of decks and user info
     for the model of the client's table
     """
     numbers_dict = None
@@ -82,8 +94,13 @@ def _get_numbers(conn):
 def handle_client(conn, addr):
     _my_print(f'[NEW CONNECTION] {addr} connected')
 
-    numbers_dict = _get_numbers(conn)
-    model = Model(num_of_players=numbers_dict[NUM_PLAYERS], num_of_decks=numbers_dict[NUM_DECKS])
+    model_info_dict = _get_model_info(conn)
+    model = Model(
+        num_of_players=model_info_dict[NUM_PLAYERS],
+        num_of_decks=model_info_dict[NUM_DECKS],
+        username=model_info_dict[USERNAME],
+        user_money=model_info_dict[USER_MONEY]
+    )
 
     connected = True
     while connected:
@@ -101,6 +118,8 @@ def handle_client(conn, addr):
             answer = {"disconnecting": True}
         else:
             answer = model.process_data(data)
+            if answer[SWITCHER] == QUIT:
+                users_playing.remove(model_info_dict[USERNAME])
 
         # encode answer
         answer_to_send = json.dumps(answer).encode(FORMAT)
@@ -159,7 +178,8 @@ def shut_down_server():
 
 
 def _get_number_of_active_connections():
-    return int((threading.activeCount() - 2) / 2)
+    return int(threading.activeCount() / 2 - 1)
+    # return int((threading.activeCount() - 2) / 2)
 
 
 _my_print('[START] server is starting')
@@ -174,42 +194,50 @@ server_thread.start()
 if __name__ == '__main__':
     root = tk.Tk()
     root.title(SERVER_TITLE)
-    root.geometry("400x250")
+    root.geometry("450x350")
     root.configure()
 
-    first_frame = tk.Frame(root)
-    first_frame.pack(padx=10, pady=10)
+    # username frame
+    user_frame = tk.Frame(root)
+    user_frame.pack(padx=10, pady=10)
+    username_label_text = 'Enter username:'
+    username_label = tk.Label(user_frame, text=username_label_text, font=('Helvetica', 12))
+    username_label.pack(side=tk.LEFT, padx=10, pady=10)
+    username_entry = tk.Entry(user_frame)
+    username_entry.pack(side=tk.LEFT, padx=10, pady=10)
 
+    # nop = number of players
+    nop_frame = tk.Frame(root)
+    nop_frame.pack(padx=10, pady=10)
     nop_label_text = 'Select how many players in the table:'
-    nop_label = tk.Label(first_frame, text=nop_label_text, font=('Helvetica', 12))
+    nop_label = tk.Label(nop_frame, text=nop_label_text, font=('Helvetica', 12))
     nop_label.pack(side=tk.LEFT, padx=10, pady=10)
-
     # number of players variable
-    nop_variable = tk.StringVar(first_frame)
+    nop_variable = tk.StringVar(nop_frame)
     nop_variable.set(str(MIN_PLAYERS))
-    nop_om = tk.OptionMenu(first_frame, nop_variable, *[str(i) for i in range(MIN_PLAYERS, MAX_PLAYERS + 1)])
+    nop_om = tk.OptionMenu(nop_frame, nop_variable, *[str(i) for i in range(MIN_PLAYERS, MAX_PLAYERS + 1)])
     nop_om.pack(side=tk.LEFT, padx=10, pady=10)
 
-    second_frame = tk.Frame(root)
-    second_frame.pack(padx=10, pady=10)
-
-    nod_label_text = 'Select how many decks in a game:'
-    nod_label = tk.Label(second_frame, text=nod_label_text, font=('Helvetica', 12))
+    # nod = number of decks
+    nod_frame = tk.Frame(root)
+    nod_frame.pack(padx=10, pady=10)
+    nod_label_text = 'Select how many decks:'
+    nod_label = tk.Label(nod_frame, text=nod_label_text, font=('Helvetica', 12))
     nod_label.pack(side=tk.LEFT, padx=10, pady=10)
-
     # number of decks variable
-    nod_variable = tk.StringVar(second_frame)
+    nod_variable = tk.StringVar(nod_frame)
     nod_variable.set('1')
-    nod_om = tk.OptionMenu(second_frame, nod_variable, *[str(i) for i in range(1, 7)])
+    nod_om = tk.OptionMenu(nod_frame, nod_variable, *[str(i) for i in range(1, 7)])
     nod_om.pack(side=tk.LEFT, padx=10, pady=10)
 
-    third_frame = tk.Frame(root)
-    third_frame.pack(padx=10, pady=10)
-
-    ct_button = tk.Button(third_frame, text=CREATE_TABLE, font=('Helvetica', 14), command=on_ct_button_clicked)
+    # buttons frame
+    buttons_frame = tk.Frame(root)
+    buttons_frame.pack(padx=10, pady=10)
+    # create table button
+    ct_button = tk.Button(buttons_frame, text=CREATE_TABLE, font=('Helvetica', 14), command=on_ct_button_clicked)
     ct_button.pack(padx=10, pady=10, side=tk.LEFT)
-
-    quit_button = tk.Button(third_frame, text=QUIT, font=('Helvetica', 14), command=shut_down_server)
+    # quit button
+    quit_button = tk.Button(buttons_frame, text=QUIT, font=('Helvetica', 14), command=shut_down_server)
     quit_button.pack(padx=10, pady=10, side=tk.LEFT)
 
     root.mainloop()
