@@ -8,16 +8,20 @@ import json
 
 class Controller:
 
-    def __init__(self, num_of_players, num_of_decks):
-        self.view = View(self, num_of_players)
+    def __init__(self, num_of_players, num_of_decks, username, user_money):
+        self.view = View(self, num_of_players, username)
         self.client = MyClient()
         self.game_on = False
+        self.username = username
+        self.user_money = user_money
 
-        numbers_dict = {
+        info_dict = {
             NUM_PLAYERS: num_of_players,
-            NUM_DECKS: num_of_decks
+            NUM_DECKS: num_of_decks,
+            USERNAME: username,
+            USER_MONEY: user_money
         }
-        self.client.send_recv_data(json.dumps(numbers_dict))
+        self.client.send_recv_data(json.dumps(info_dict))
 
     def main(self):
         self.view.main()
@@ -125,9 +129,11 @@ class Controller:
 
 if __name__ == '__main__':
     try:
-        nop = int(sys.argv[1])  # number of players
-        nod = int(sys.argv[2])  # number of decks
-        blackjack = Controller(nop, nod)
+        nop = int(sys.argv[1])   # number of players
+        nod = int(sys.argv[2])   # number of decks
+        un = sys.argv[3]         # username
+        um = float(sys.argv[4])  # user money
+        blackjack = Controller(nop, nod, un, um)
         blackjack.main()
     except ValueError as e:
         print(e)

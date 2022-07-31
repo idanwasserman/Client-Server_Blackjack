@@ -2,6 +2,7 @@ import card
 import random
 from constants import *
 import datetime
+import user
 
 
 def _add_timestamp_to_msg(msg):
@@ -13,7 +14,7 @@ class Model:
     BLACKJACK = 21
     MAX_CARDS = 5
 
-    def __init__(self, num_of_players, num_of_decks):
+    def __init__(self, num_of_players, num_of_decks, username, user_money):
         self.num_of_players = num_of_players
         self.num_of_decks = num_of_decks
         self.game_on = False
@@ -31,6 +32,8 @@ class Model:
         self.deck = card.create_deck(num_of_decks)
         # Current player playing
         self.curr_player = 0
+        # User
+        self.user = user.User(username=username, money=user_money)
 
     @staticmethod
     def new_game_message():

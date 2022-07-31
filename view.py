@@ -12,7 +12,7 @@ class View(tk.Tk):
         START, HIT, STAND, QUIT
     ]
 
-    def __init__(self, controller, num_of_players):
+    def __init__(self, controller, num_of_players, username):
         super().__init__()
         self.title(TITLE)
         self.geometry(GEOMETRY)
@@ -28,7 +28,7 @@ class View(tk.Tk):
         self._make_main_frame()
         self._make_text_label()
         self._make_dealer_frame()
-        self._make_players_frames(num_of_players)
+        self._make_players_frames(num_of_players, username)
         self._make_buttons()
 
     def main(self):
@@ -112,19 +112,31 @@ class View(tk.Tk):
             # anchor img to object
             self.dealer_cards_labels[spot].image = blank_img
 
-    def _make_players_frames(self, num_of_players):
+    def _make_players_frames(self, num_of_players, username):
         self.players_cards_labels = []
         for player_num in range(num_of_players):
             # Player's frame
-            player_frame = tk.LabelFrame(self.main_frame, text=f'{PLAYER} #{player_num + 1}')
-            player_frame.pack(pady=self.PAD)
+            if player_num == 0:
+                player_name = username
+                player_frame = tk.LabelFrame(self.main_frame, text=player_name)
+                player_frame.pack(pady=self.PAD)
+
+                self.money_label = tk.Label(player_frame, text=f'Money: 1000')
+                self.money_label.grid(row=0)
+                row = 1
+
+            else:
+                player_name = f'{PLAYER} #{player_num + 1}'
+                player_frame = tk.LabelFrame(self.main_frame, text=player_name)
+                player_frame.pack(pady=self.PAD)
+                row = 0
 
             # Player's cards
             blank_img = card.get_blank_card_image()
             curr_player_cards_labels = []
             for spot in range(self.CARD_TOTAL_SPOTS):
                 card_label = tk.Label(player_frame, text='', image=blank_img)
-                card_label.grid(row=0, column=spot, padx=self.PAD, pady=self.PAD)
+                card_label.grid(row=row, column=spot, padx=self.PAD, pady=self.PAD)
                 curr_player_cards_labels.append(card_label)
                 # anchor img to object
                 curr_player_cards_labels[spot].image = blank_img
