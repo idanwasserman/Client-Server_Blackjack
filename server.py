@@ -118,8 +118,9 @@ def handle_client(conn, addr):
             answer = {"disconnecting": True}
         else:
             answer = model.process_data(data)
-            if answer[SWITCHER] == QUIT:
-                users_playing.remove(model_info_dict[USERNAME])
+            if SWITCHER in answer:
+                if answer[SWITCHER] == QUIT:
+                    users_playing.remove(model_info_dict[USERNAME])
 
         # encode answer
         answer_to_send = json.dumps(answer).encode(FORMAT)

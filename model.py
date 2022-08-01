@@ -119,7 +119,7 @@ class Model:
             }
 
     def start_new_game(self):
-        self.__init__(self.num_of_players, self.num_of_decks)
+        self.__init__(self.num_of_players, self.num_of_decks, self.user.username, self.user.money)
         # print('Model - started a new game')
         self.game_on = True
 
