@@ -5,6 +5,7 @@ import os
 from constants import *
 from model import Model
 import json
+import file_utils
 
 
 HOST = socket.gethostbyname(socket.gethostname())
@@ -41,16 +42,25 @@ def on_ct_button_clicked():
         users_playing.append(username)
         num_of_players = int(nop_variable.get())
         num_of_decks = int(nod_variable.get())
-        thread = threading.Thread(target=start_new_client, args=[num_of_players, num_of_decks, username])
+        user_money = _load_user_money(username)
+        thread = threading.Thread(target=start_new_client, args=[num_of_players, num_of_decks, username, user_money])
         thread.start()
     else:
         _my_print(f'[ERROR] Cannot create more than {MAX_CLIENTS} tables')
         return
 
 
-def start_new_client(num_of_players, num_of_decks, username):
+def _load_user_money(username):
+    users = file_utils.load_users_from_file()
+    if username in users:
+        return users[username]
+    else:
+        return STARTER_MONEY_AMOUNT
+
+
+def start_new_client(num_of_players, num_of_decks, username, user_money):
     path = r'C:\seminar_client_server\Client-Server_Blackjack\controller.py'
-    os.system(f'python {path} {num_of_players} {num_of_decks} {username} 1000')
+    os.system(f'python {path} {num_of_players} {num_of_decks} {username} {user_money}')
     pass
 
 
@@ -115,7 +125,7 @@ def handle_client(conn, addr):
 
         if data == DISCONNECT_MSG:
             connected = False
-            answer = {"disconnecting": True}
+            answer = {DISCONNECTING: True}
         else:
             answer = model.process_data(data)
             if SWITCHER in answer:
@@ -163,7 +173,9 @@ def shut_down_server():
     # main thread is server's GUI
     # second thread is the server itself
     if _get_number_of_active_connections() > 0:
-        _my_print(f'[ERROR] cannot shut down server ; there are still {_get_number_of_active_connections()} active clients')
+        msg = '[ERROR] cannot shut down server ; '
+        msg += f'there are still {_get_number_of_active_connections()} active clients'
+        _my_print(msg)
         return
 
     global root, server
@@ -180,7 +192,6 @@ def shut_down_server():
 
 def _get_number_of_active_connections():
     return int(threading.activeCount() / 2 - 1)
-    # return int((threading.activeCount() - 2) / 2)
 
 
 _my_print('[START] server is starting')

@@ -12,7 +12,7 @@ class View(tk.Tk):
         START, HIT, STAND, QUIT
     ]
 
-    def __init__(self, controller, num_of_players, username):
+    def __init__(self, controller, num_of_players, username, user_money):
         super().__init__()
         self.title(TITLE)
         self.geometry(GEOMETRY)
@@ -28,7 +28,7 @@ class View(tk.Tk):
         self._make_main_frame()
         self._make_text_label()
         self._make_dealer_frame()
-        self._make_players_frames(num_of_players, username)
+        self._make_players_frames(num_of_players, username, user_money)
         self._make_buttons()
 
     def main(self):
@@ -76,6 +76,9 @@ class View(tk.Tk):
         self.third_msg = message
         self.output_text.set(self.first_msg + '\n\n' + self.second_msg + '\n\n' + self.third_msg)
 
+    def update_money_label(self, user_money):
+        self.money_label['text'] = f'Money: {user_money}'
+
     def _make_text_label(self):
         self.output_text = tk.StringVar()
         self.label_text = tk.Label(self.main_frame, font=('Helvetica', 14), textvariable=self.output_text)
@@ -112,7 +115,7 @@ class View(tk.Tk):
             # anchor img to object
             self.dealer_cards_labels[spot].image = blank_img
 
-    def _make_players_frames(self, num_of_players, username):
+    def _make_players_frames(self, num_of_players, username, user_money):
         self.players_cards_labels = []
         for player_num in range(num_of_players):
             # Player's frame
@@ -121,7 +124,7 @@ class View(tk.Tk):
                 player_frame = tk.LabelFrame(self.main_frame, text=player_name)
                 player_frame.pack(pady=self.PAD)
 
-                self.money_label = tk.Label(player_frame, text=f'Money: 1000')
+                self.money_label = tk.Label(player_frame, text=f'Money: {user_money}')
                 self.money_label.grid(row=0)
                 row = 1
 

@@ -9,7 +9,7 @@ import json
 class Controller:
 
     def __init__(self, num_of_players, num_of_decks, username, user_money):
-        self.view = View(self, num_of_players, username)
+        self.view = View(self, num_of_players, username, user_money)
         self.client = MyClient()
         self.game_on = False
         self.username = username
@@ -52,8 +52,10 @@ class Controller:
         if switcher == NEW_GAME:
             self._new_game_started(dictionary)
             return
+
         elif switcher == STAND:
             self._curr_player_turn_over(dictionary)
+
         elif switcher == QUIT:
             self.client.send_recv_data(DISCONNECT_MSG)
             self.view.destroy_all()

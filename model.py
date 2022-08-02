@@ -3,6 +3,8 @@ import random
 from constants import *
 import datetime
 import user
+import threading
+import file_utils
 
 
 def _add_timestamp_to_msg(msg):
@@ -42,14 +44,16 @@ class Model:
         }
 
     def quit(self):
-        self._save_game()
+        saving_thread = threading.Thread(target=self._save_game)
+        saving_thread.start()
         return {
             SWITCHER: QUIT
         }
 
     def _save_game(self):
-        # TODO: save game stats
-        pass
+        users = file_utils.load_users_from_file()
+        users[self.user.username] = self.user.money
+        file_utils.save_users_to_file(users)
 
     def hit_card(self):
         # Check player can hit more cards

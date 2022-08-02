@@ -43,6 +43,7 @@ SCORES = 'Scores'
 HEADER = 64
 FORMAT = 'utf-8'
 DISCONNECT_MSG = '!DISCONNECT!'
+DISCONNECTING = 'disconnecting'
 MIN_PLAYERS = 1
 MAX_PLAYERS = 3
 MAX_CLIENTS = 3
@@ -70,3 +71,4 @@ SPADES = 'spades'
 # User
 USERNAME = 'username'
 USER_MONEY = 'user_money'
+STARTER_MONEY_AMOUNT = 1000.0
