@@ -155,15 +155,15 @@ class View(tk.Tk):
         text_label = tk.Label(frame, text='Your bet: ')
         text_label.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
-        plus_btn = tk.Button(frame, text='+', command=self.plus_btn_clicked)
-        plus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
+        self.plus_btn = tk.Button(frame, text='+', command=self._plus_btn_clicked)
+        self.plus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
         self.bet_label.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
-        minus_btn = tk.Button(frame, text='-', command=self.minus_btn_clicked)
-        minus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
+        self.minus_btn = tk.Button(frame, text='-', command=self._minus_btn_clicked)
+        self.minus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
-    def plus_btn_clicked(self):
+    def _plus_btn_clicked(self):
         curr_bet = float(self.bet_label[TEXT])
         if curr_bet >= MAX_BET:
             return
@@ -171,7 +171,7 @@ class View(tk.Tk):
             curr_bet += 5.0
             self.bet_label[TEXT] = curr_bet
 
-    def minus_btn_clicked(self):
+    def _minus_btn_clicked(self):
         curr_bet = float(self.bet_label[TEXT])
         if curr_bet <= MIN_BET:
             return
@@ -179,3 +179,13 @@ class View(tk.Tk):
             curr_bet -= 5.0
             self.bet_label[TEXT] = curr_bet
 
+    def get_player_bet(self):
+        return float(self.bet_label[TEXT])
+
+    def change_buttons_state(self):
+        if self.plus_btn['state'] == tk.DISABLED:
+            self.plus_btn['state'] = tk.DISABLED
+            self.minus_btn['state'] = tk.DISABLED
+        else:
+            self.plus_btn['state'] = tk.NORMAL
+            self.minus_btn['state'] = tk.NORMAL

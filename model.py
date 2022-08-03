@@ -51,6 +51,7 @@ class Model:
         }
 
     def _save_game(self):
+        print(f'Saving user: {self.user.username} - {self.user.money}')
         users = file_utils.load_users_from_file()
         users[self.user.username] = self.user.money
         file_utils.save_users_to_file(users)
@@ -183,12 +184,39 @@ class Model:
                     curr_result = WON
             msg += f'{PLAYER} #{player_num + 1}: {self.players_scores[player_num]} ({curr_result})\n'
 
+        prize = self._get_player_prize()
+        self.user.money += prize
+        msg += f'{self.user.username} won {prize}\n'
+
         msg += f'Game Over!\nPress [{START}] to start a new game'
         return {
-            RESULTS: _add_timestamp_to_msg(msg)
+            RESULTS: _add_timestamp_to_msg(msg),
+            PRIZE: prize,
+            USER_MONEY: self.user.money
         }
 
+    def _get_player_prize(self):
+        main_player_score = self.players_scores[0]
+        lower_than_dealer = main_player_score < self.dealer_score <= Model.BLACKJACK
+        if main_player_score > Model.BLACKJACK or lower_than_dealer:
+            # lost - player gets nothing
+            return 0
+        else:
+            if main_player_score == self.dealer_score:
+                # a tie - player gets his bet back
+                return self.bet
+            else:
+                if main_player_score == Model.BLACKJACK:
+                    # win with BLACKJACK - player gets 2.5 * bet
+                    return self.bet * 2.5
+                else:
+                    # win - player get 2.0 * bet
+                    return self.bet * 2.0
+
     def process_data(self, data):
+        if 'BET' in data:
+            return self._handle_player_bet(data)
+
         func_dict = {
             START: self.start_new_game,
             HIT: self.hit_card,
@@ -200,3 +228,10 @@ class Model:
         }
         ret_val = func_dict[data]()
         return ret_val
+
+    def _handle_player_bet(self, data):
+        self.bet = float(data.split('=')[1])
+        self.user.money -= self.bet
+        return {
+            'bet': self.bet
+        }

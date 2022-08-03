@@ -57,6 +57,7 @@ MAX_BET = 100.0
 DEALER_TURN = 'dealer_turn'
 GET_RESULTS = 'get_results'
 RESULTS = 'results'
+PRIZE = 'prize'
 
 # card attributes
 SUIT = 'suit'

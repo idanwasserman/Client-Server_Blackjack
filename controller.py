@@ -50,6 +50,10 @@ class Controller:
         switcher = dictionary[SWITCHER]
 
         if switcher == NEW_GAME:
+            self.user_bet = self.view.get_player_bet()
+            player_bet_text = f'BET={self.user_bet}'
+            self.client.send_recv_data(player_bet_text)
+            self.view.change_buttons_state()
             self._new_game_started(dictionary)
             return
 
@@ -98,7 +102,12 @@ class Controller:
 
         # Dealer's turn is over -> Show results
         server_answer = self.client.send_recv_data(GET_RESULTS)
+        self.view.change_buttons_state()
         self.view.show_message(server_answer[RESULTS])
+        # Update money
+        self.user_money = server_answer[USER_MONEY]
+        self.view.update_money_label(self.user_money)
+
         self.game_on = False
 
     def _new_game_started(self, dictionary):
@@ -106,9 +115,11 @@ class Controller:
         # Clear old cards
         self.view.clear_cards()
         # Show message
-        # self.view.show_message(self.model.new_game_message())
         server_answer = self.client.send_recv_data(NEW_GAME_MSG)
         self.view.show_message(server_answer[NEW_GAME_MSG])
+        # Update money
+        self.user_money -= self.user_bet
+        self.view.update_money_label(self.user_money)
 
         # Update dealer's cards
         dealer_cards = dictionary[DEALER_CARDS]
