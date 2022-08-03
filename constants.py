@@ -34,10 +34,12 @@ PLAYER = 'Player'
 GEOMETRY = '1200x650'
 GREEN = 'green'
 BLUE = 'blue'
+RED = 'red'
 LOST = 'Lost'
 TIE = 'Tie'
 WON = 'Won'
 SCORES = 'Scores'
+TEXT = 'text'
 
 # client/server
 HEADER = 64
@@ -50,6 +52,8 @@ MAX_CLIENTS = 3
 MIN_USERNAME_LEN = 4
 
 
+MIN_BET = 5.0
+MAX_BET = 100.0
 DEALER_TURN = 'dealer_turn'
 GET_RESULTS = 'get_results'
 RESULTS = 'results'

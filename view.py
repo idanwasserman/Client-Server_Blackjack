@@ -4,7 +4,6 @@ from constants import *
 
 
 class View(tk.Tk):
-
     CARD_TOTAL_SPOTS = 5
     PAD = 10
 
@@ -21,7 +20,7 @@ class View(tk.Tk):
         self.controller = controller
         self.hidden_card_path = None
 
-        self.first_msg = 'Hello world'
+        self.first_msg = 'Hello players'
         self.second_msg = 'Blackjack game'
         self.third_msg = ''
 
@@ -29,6 +28,7 @@ class View(tk.Tk):
         self._make_text_label()
         self._make_dealer_frame()
         self._make_players_frames(num_of_players, username, user_money)
+        self._make_bet_frame()
         self._make_buttons()
 
     def main(self):
@@ -91,7 +91,7 @@ class View(tk.Tk):
 
     def _make_buttons(self):
         frame = tk.Frame(self.main_frame, bg=BLUE)
-        frame.pack()
+        frame.pack(side=tk.LEFT)
 
         for caption in self.button_captions:
             btn = tk.Button(
@@ -145,3 +145,37 @@ class View(tk.Tk):
                 curr_player_cards_labels[spot].image = blank_img
 
             self.players_cards_labels.append(curr_player_cards_labels)
+
+    def _make_bet_frame(self):
+        frame = tk.Frame(self.main_frame, bg=RED)
+        frame.pack(side=tk.LEFT)
+
+        self.bet_label = tk.Label(frame, text='5.0')
+
+        text_label = tk.Label(frame, text='Your bet: ')
+        text_label.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
+
+        plus_btn = tk.Button(frame, text='+', command=self.plus_btn_clicked)
+        plus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
+
+        self.bet_label.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
+
+        minus_btn = tk.Button(frame, text='-', command=self.minus_btn_clicked)
+        minus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
+
+    def plus_btn_clicked(self):
+        curr_bet = float(self.bet_label[TEXT])
+        if curr_bet >= MAX_BET:
+            return
+        else:
+            curr_bet += 5.0
+            self.bet_label[TEXT] = curr_bet
+
+    def minus_btn_clicked(self):
+        curr_bet = float(self.bet_label[TEXT])
+        if curr_bet <= MIN_BET:
+            return
+        else:
+            curr_bet -= 5.0
+            self.bet_label[TEXT] = curr_bet
+
