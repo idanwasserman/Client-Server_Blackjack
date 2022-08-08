@@ -51,7 +51,6 @@ class Model:
         }
 
     def _save_game(self):
-        print(f'Saving user: {self.user.username} - {self.user.money}')
         users = file_utils.load_users_from_file()
         users[self.user.username] = self.user.money
         file_utils.save_users_to_file(users)
@@ -214,7 +213,7 @@ class Model:
                     return self.bet * 2.0
 
     def process_data(self, data):
-        if 'BET' in data:
+        if BET in data:
             return self._handle_player_bet(data)
 
         func_dict = {
@@ -231,7 +230,14 @@ class Model:
 
     def _handle_player_bet(self, data):
         self.bet = float(data.split('=')[1])
-        self.user.money -= self.bet
-        return {
-            'bet': self.bet
-        }
+        if self.bet > self.user.money:
+            return {
+                ERROR: True,
+                MSG: _add_timestamp_to_msg("You don't have enough money")
+            }
+        else:
+            self.user.money -= self.bet
+            return {
+                ERROR: False,
+                BET: self.bet
+            }

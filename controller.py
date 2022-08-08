@@ -51,11 +51,15 @@ class Controller:
 
         if switcher == NEW_GAME:
             self.user_bet = self.view.get_player_bet()
-            player_bet_text = f'BET={self.user_bet}'
-            self.client.send_recv_data(player_bet_text)
-            self.view.change_buttons_state()
-            self._new_game_started(dictionary)
-            return
+            player_bet_text = f'{BET}={self.user_bet}'
+            server_answer = self.client.send_recv_data(player_bet_text)
+            if server_answer[ERROR]:
+                self.view.show_message(server_answer[MSG])
+                return
+            else:
+                self.view.change_buttons_state()
+                self._new_game_started(dictionary)
+                return
 
         elif switcher == STAND:
             self._curr_player_turn_over(dictionary)

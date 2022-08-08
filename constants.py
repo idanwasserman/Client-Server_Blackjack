@@ -25,6 +25,7 @@ NEW_GAME_MSG = 'new_game_message'
 BOOL = 'boolean'
 NUM_PLAYERS = 'num_of_players'
 NUM_DECKS = 'num_of_decks'
+ERROR = 'error'
 
 # view
 SERVER_TITLE = 'Blackjack Server'
@@ -58,6 +59,7 @@ DEALER_TURN = 'dealer_turn'
 GET_RESULTS = 'get_results'
 RESULTS = 'results'
 PRIZE = 'prize'
+BET = 'bet'
 
 # card attributes
 SUIT = 'suit'
