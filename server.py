@@ -48,15 +48,21 @@ def on_ct_button_clicked():
     second thread is the server itself.
     """
     username = username_entry.get()
+
     if len(username) < MIN_USERNAME_LEN:
-        _my_print(f'[ERROR] Username must be at least {MIN_USERNAME_LEN} characters', logging.ERROR)
+        err_msg = f'Username must be at least {MIN_USERNAME_LEN} characters'
+        _my_print(f'[ERROR] {err_msg}', logging.ERROR)
+        msg_label[TEXT] = err_msg
         return
 
     if username in users_playing:
-        _my_print(f'[ERROR] User {username} is already playing', logging.ERROR)
+        err_msg = f'User {username} is already playing'
+        _my_print(f'[ERROR] {err_msg}', logging.ERROR)
+        msg_label[TEXT] = err_msg
         return
 
     if _get_number_of_active_connections() < MAX_CLIENTS:
+        msg_label[TEXT] = ''
         users_playing.append(username)
         num_of_players = int(nop_variable.get())
         num_of_decks = int(nod_variable.get())
@@ -65,6 +71,7 @@ def on_ct_button_clicked():
         thread.start()
     else:
         _my_print(f'[ERROR] Cannot create more than {MAX_CLIENTS} tables', logging.ERROR)
+        msg_label[TEXT] = f'Cannot create more than {MAX_CLIENTS} tables'
         return
 
 
@@ -192,9 +199,10 @@ def shut_down_server():
     # main thread is server's GUI
     # second thread is the server itself
     if _get_number_of_active_connections() > 0:
-        msg = '[ERROR] cannot shut down server ; '
-        msg += f'there are still {_get_number_of_active_connections()} active clients'
-        _my_print(msg, logging.ERROR)
+        err_msg_log = '[ERROR] cannot shut down server ; '
+        err_msg = f'There are still {_get_number_of_active_connections()} active clients'
+        _my_print(err_msg_log + err_msg, logging.ERROR)
+        msg_label[TEXT] = err_msg
         return
 
     global root, server
@@ -229,7 +237,7 @@ if __name__ == '__main__':
 
     # username frame
     user_frame = tk.Frame(root)
-    user_frame.pack(padx=10, pady=10)
+    user_frame.pack(padx=10, pady=10, anchor='w')
     username_label_text = 'Enter username:'
     username_label = tk.Label(user_frame, text=username_label_text, font=('Helvetica', 12))
     username_label.pack(side=tk.LEFT, padx=10, pady=10)
@@ -238,8 +246,8 @@ if __name__ == '__main__':
 
     # nop = number of players
     nop_frame = tk.Frame(root)
-    nop_frame.pack(padx=10, pady=10)
-    nop_label_text = 'Select how many players in the table:'
+    nop_frame.pack(padx=10, pady=10, anchor='w')
+    nop_label_text = 'Select how many players:'
     nop_label = tk.Label(nop_frame, text=nop_label_text, font=('Helvetica', 12))
     nop_label.pack(side=tk.LEFT, padx=10, pady=10)
     # number of players variable
@@ -250,7 +258,7 @@ if __name__ == '__main__':
 
     # nod = number of decks
     nod_frame = tk.Frame(root)
-    nod_frame.pack(padx=10, pady=10)
+    nod_frame.pack(padx=10, pady=10, anchor='w')
     nod_label_text = 'Select how many decks:'
     nod_label = tk.Label(nod_frame, text=nod_label_text, font=('Helvetica', 12))
     nod_label.pack(side=tk.LEFT, padx=10, pady=10)
@@ -262,12 +270,19 @@ if __name__ == '__main__':
 
     # buttons frame
     buttons_frame = tk.Frame(root)
-    buttons_frame.pack(padx=10, pady=10)
+    buttons_frame.pack(padx=10, pady=10, anchor='center')
     # create table button
     ct_button = tk.Button(buttons_frame, text=CREATE_TABLE, font=('Helvetica', 14), command=on_ct_button_clicked)
     ct_button.pack(padx=10, pady=10, side=tk.LEFT)
     # quit button
     quit_button = tk.Button(buttons_frame, text=QUIT, font=('Helvetica', 14), command=shut_down_server)
     quit_button.pack(padx=10, pady=10, side=tk.LEFT)
+
+    # output messages frame
+    msg_frame = tk.Frame(root)
+    msg_frame.pack(padx=10, pady=10, anchor='e')
+    # create message label
+    msg_label = tk.Label(msg_frame, text='', fg='#f00', font=('Helvetica', 10))
+    msg_label.pack(padx=10, pady=10)
 
     root.mainloop()
