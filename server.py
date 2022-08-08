@@ -6,7 +6,7 @@ from constants import *
 from model import Model
 import json
 import file_utils
-
+import logging
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5050
@@ -15,10 +15,28 @@ output_lock = threading.Semaphore(value=1)
 
 users_playing = []
 
+LOG_FILENAME = r'logs\server.log'
+LOG_FORMAT = '%(asctime)s : %(levelname)s\t:%(message)s'
 
-def _my_print(text):
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG, format=LOG_FORMAT)
+
+
+def _my_print(msg, level):
     output_lock.acquire()
-    print(text)
+
+    if level is None:
+        logging.debug(msg)
+    elif level == logging.DEBUG:
+        logging.debug(msg)
+    elif level == logging.INFO:
+        logging.info(msg)
+    elif level == logging.WARNING:
+        logging.warning(msg)
+    elif level == logging.ERROR:
+        logging.error(msg)
+    elif level == logging.CRITICAL:
+        logging.critical(msg)
+
     output_lock.release()
 
 
@@ -31,11 +49,11 @@ def on_ct_button_clicked():
     """
     username = username_entry.get()
     if len(username) < MIN_USERNAME_LEN:
-        _my_print(f'[ERROR] Username must be at least {MIN_USERNAME_LEN} characters')
+        _my_print(f'[ERROR] Username must be at least {MIN_USERNAME_LEN} characters', logging.ERROR)
         return
 
     if username in users_playing:
-        _my_print(f'[ERROR] User {username} is already playing')
+        _my_print(f'[ERROR] User {username} is already playing', logging.ERROR)
         return
 
     if _get_number_of_active_connections() < MAX_CLIENTS:
@@ -46,7 +64,7 @@ def on_ct_button_clicked():
         thread = threading.Thread(target=start_new_client, args=[num_of_players, num_of_decks, username, user_money])
         thread.start()
     else:
-        _my_print(f'[ERROR] Cannot create more than {MAX_CLIENTS} tables')
+        _my_print(f'[ERROR] Cannot create more than {MAX_CLIENTS} tables', logging.ERROR)
         return
 
 
@@ -102,7 +120,7 @@ def _get_model_info(conn):
 
 
 def handle_client(conn, addr):
-    _my_print(f'[NEW CONNECTION] {addr} connected')
+    _my_print(f'[NEW CONNECTION] {addr} connected', logging.INFO)
 
     model_info_dict = _get_model_info(conn)
     model = Model(
@@ -122,6 +140,7 @@ def handle_client(conn, addr):
         # receive data
         data_length = int(data_length)
         data = conn.recv(data_length).decode(FORMAT)
+        _my_print(f'[CLIENT] Handling client\'s data: data={data}, address={addr}', logging.INFO)
 
         if data == DISCONNECT_MSG:
             connected = False
@@ -144,11 +163,11 @@ def handle_client(conn, addr):
         conn.send(answer_to_send)
 
     conn.close()
-    _my_print(f'[ACTIVE CONNECTIONS] {_get_number_of_active_connections() - 1}')
+    _my_print(f'[ACTIVE CONNECTIONS] {_get_number_of_active_connections() - 1}', logging.INFO)
 
 
 def start_server():
-    _my_print(f'[LISTENING] server is listening on {HOST}')
+    _my_print(f'[LISTENING] server is listening on {HOST}', logging.INFO)
 
     server.listen()
     server_on = True
@@ -164,9 +183,9 @@ def start_server():
         thread = threading.Thread(target=handle_client, args=(conn, addr))
         thread.daemon = True
         thread.start()
-        _my_print(f'[ACTIVE CONNECTIONS] {_get_number_of_active_connections()}')
+        _my_print(f'[ACTIVE CONNECTIONS] {_get_number_of_active_connections()}', logging.INFO)
 
-    _my_print('[STOPPED] server has stopped')
+    _my_print('[STOPPED] server has stopped', logging.INFO)
 
 
 def shut_down_server():
@@ -175,12 +194,12 @@ def shut_down_server():
     if _get_number_of_active_connections() > 0:
         msg = '[ERROR] cannot shut down server ; '
         msg += f'there are still {_get_number_of_active_connections()} active clients'
-        _my_print(msg)
+        _my_print(msg, logging.ERROR)
         return
 
     global root, server
 
-    _my_print('[SHUT DOWN] server is shutting down')
+    _my_print('[SHUT DOWN] server is shutting down', logging.INFO)
 
     server.close()
 
@@ -194,14 +213,13 @@ def _get_number_of_active_connections():
     return int(threading.activeCount() / 2 - 1)
 
 
-_my_print('[START] server is starting')
+_my_print('[START] server is starting', logging.INFO)
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 server_thread = threading.Thread(target=start_server)
 server_thread.daemon = True
 server_thread.start()
-
 
 if __name__ == '__main__':
     root = tk.Tk()
