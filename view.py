@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter.ttk import *
 import card
 from constants import *
 
@@ -28,7 +29,7 @@ class View(tk.Tk):
         self._make_text_label()
         self._make_dealer_frame()
         self._make_players_frames(num_of_players, username, user_money)
-        self._make_bet_frame()
+        self._make_bet_frame(username)
         self._make_buttons()
 
     def main(self):
@@ -77,7 +78,7 @@ class View(tk.Tk):
         self.output_text.set(self.first_msg + '\n\n' + self.second_msg + '\n\n' + self.third_msg)
 
     def update_money_label(self, user_money):
-        self.money_label['text'] = f'Money: {user_money}'
+        self.money_label[TEXT] = f'Money: {user_money}'
 
     def _make_text_label(self):
         self.output_text = tk.StringVar()
@@ -90,7 +91,7 @@ class View(tk.Tk):
         self.main_frame.pack(padx=self.PAD, pady=self.PAD)
 
     def _make_buttons(self):
-        frame = tk.Frame(self.main_frame, bg=BLUE)
+        frame = tk.LabelFrame(self.main_frame)
         frame.pack(side=tk.LEFT)
 
         for caption in self.button_captions:
@@ -146,21 +147,26 @@ class View(tk.Tk):
 
             self.players_cards_labels.append(curr_player_cards_labels)
 
-    def _make_bet_frame(self):
-        frame = tk.Frame(self.main_frame, bg=RED)
+    def _make_bet_frame(self, username):
+        frame = tk.LabelFrame(self.main_frame)
         frame.pack(side=tk.LEFT)
 
-        self.bet_label = tk.Label(frame, text='5.0')
+        self.bet_label = tk.Label(frame, text=str(MIN_BET))
 
-        text_label = tk.Label(frame, text='Your bet: ')
+        text_label = tk.Label(frame, text=f'{username}\'s bet: ')
         text_label.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
-        self.plus_btn = tk.Button(frame, text='+', command=self._plus_btn_clicked)
+        self.plus_icn = tk.PhotoImage(file=ICN_PLUS_PATH)
+        self.btn_style = Style()
+        self.btn_style.configure('Bet.TButton', font=('arial', 12, 'bold'), foreground='red')
+
+        self.plus_btn = Button(frame, command=self._plus_btn_clicked, image=self.plus_icn)
         self.plus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
         self.bet_label.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
-        self.minus_btn = tk.Button(frame, text='-', command=self._minus_btn_clicked)
+        self.minus_icn = tk.PhotoImage(file=ICN_MINUS_PATH)
+        self.minus_btn = Button(frame, command=self._minus_btn_clicked, image=self.minus_icn)
         self.minus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
     def _plus_btn_clicked(self):
@@ -183,9 +189,9 @@ class View(tk.Tk):
         return float(self.bet_label[TEXT])
 
     def change_buttons_state(self):
-        if self.plus_btn['state'] == tk.DISABLED:
-            self.plus_btn['state'] = tk.DISABLED
-            self.minus_btn['state'] = tk.DISABLED
+        if self.plus_btn[STATE] == tk.DISABLED:
+            self.plus_btn[STATE] = tk.DISABLED
+            self.minus_btn[STATE] = tk.DISABLED
         else:
-            self.plus_btn['state'] = tk.NORMAL
-            self.minus_btn['state'] = tk.NORMAL
+            self.plus_btn[STATE] = tk.NORMAL
+            self.minus_btn[STATE] = tk.NORMAL
