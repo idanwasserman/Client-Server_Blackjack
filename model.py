@@ -52,7 +52,7 @@ class Model:
 
     def _save_game(self):
         users = file_utils.load_users_from_file()
-        users[self.user.username] = self.user.money
+        users[self.user.username] = self.user.get_money()
         file_utils.save_users_to_file(users)
 
     def hit_card(self):
@@ -123,7 +123,7 @@ class Model:
             }
 
     def start_new_game(self):
-        self.__init__(self.num_of_players, self.num_of_decks, self.user.username, self.user.money)
+        self.__init__(self.num_of_players, self.num_of_decks, self.user.username, self.user.get_money())
         # print('Model - started a new game')
         self.game_on = True
 
@@ -184,14 +184,14 @@ class Model:
             msg += f'{PLAYER} #{player_num + 1}: {self.players_scores[player_num]} ({curr_result})\n'
 
         prize = self._get_player_prize()
-        self.user.money += prize
+        self.user.add_money(prize)
         msg += f'{self.user.username} won {prize}\n'
 
         msg += f'Game Over!\nPress [{START}] to start a new game'
         return {
             RESULTS: _add_timestamp_to_msg(msg),
             PRIZE: prize,
-            USER_MONEY: self.user.money
+            USER_MONEY: self.user.get_money()
         }
 
     def _get_player_prize(self):
@@ -230,14 +230,15 @@ class Model:
 
     def _handle_player_bet(self, data):
         self.bet = float(data.split('=')[1])
-        if self.bet > self.user.money:
-            return {
-                ERROR: True,
-                MSG: _add_timestamp_to_msg("You don't have enough money")
-            }
-        else:
-            self.user.money -= self.bet
+        try:
+            self.user.take_money(self.bet)
             return {
                 ERROR: False,
                 BET: self.bet
+            }
+        except Exception as e:
+            print(e)
+            return {
+                ERROR: True,
+                MSG: _add_timestamp_to_msg("You don't have enough money")
             }
