@@ -82,7 +82,7 @@ class View(tk.Tk):
 
     def _make_text_label(self):
         self.output_text = tk.StringVar()
-        self.label_text = tk.Label(self.main_frame, font=('Helvetica', 14), textvariable=self.output_text)
+        self.label_text = tk.Label(self.main_frame, font=('arial', 14), textvariable=self.output_text)
         self.label_text.pack(side=tk.LEFT, padx=View.PAD)
         self.output_text.set(self.first_msg + '\n\n' + self.second_msg)
 
@@ -92,12 +92,21 @@ class View(tk.Tk):
 
     def _make_buttons(self):
         frame = tk.LabelFrame(self.main_frame)
-        frame.pack(side=tk.LEFT)
+        frame.pack(side=tk.BOTTOM)
 
         for caption in self.button_captions:
+
+            if caption == START:
+                color = GREEN
+            elif caption == QUIT:
+                color = RED
+            else:
+                color = BLACK
+
             btn = tk.Button(
                 frame, text=caption,
-                command=(lambda button_caption=caption: self.controller.on_button_click(button_caption))
+                command=(lambda button_caption=caption: self.controller.on_button_click(button_caption)),
+                foreground=color, font=('arial', 13, 'bold', 'italic')
             )
             btn.pack(side=tk.LEFT, padx=self.PAD, pady=self.PAD)
 
@@ -151,18 +160,14 @@ class View(tk.Tk):
         frame = tk.LabelFrame(self.main_frame)
         frame.pack(side=tk.LEFT)
 
-        self.bet_label = tk.Label(frame, text=str(MIN_BET))
-
-        text_label = tk.Label(frame, text=f'{username}\'s bet: ')
+        text_label = tk.Label(frame, text=f'{username}\'s bet:', font=('arial', 10, 'bold', 'underline'))
         text_label.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
         self.plus_icn = tk.PhotoImage(file=ICN_PLUS_PATH)
-        self.btn_style = Style()
-        self.btn_style.configure('Bet.TButton', font=('arial', 12, 'bold'), foreground='red')
-
         self.plus_btn = Button(frame, command=self._plus_btn_clicked, image=self.plus_icn)
         self.plus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
+        self.bet_label = tk.Label(frame, text=str(MIN_BET))
         self.bet_label.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
 
         self.minus_icn = tk.PhotoImage(file=ICN_MINUS_PATH)
