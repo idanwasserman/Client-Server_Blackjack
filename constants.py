@@ -1,3 +1,7 @@
+"""
+This file contains constants used by other scripts
+"""
+
 # Buttons captions
 START = 'Start'
 HIT = 'Hit'
@@ -5,7 +9,7 @@ STAND = 'Stand'
 QUIT = 'Quit'
 CREATE_TABLE = 'Create table'
 
-# keys of data passing between modules
+# Keys of data passing between modules
 HIT_CARD = 'hit_card'
 IMAGE = 'image'
 SWITCHER = 'switcher'
@@ -27,7 +31,7 @@ NUM_PLAYERS = 'num_of_players'
 NUM_DECKS = 'num_of_decks'
 ERROR = 'error'
 
-# view
+# View
 SERVER_TITLE = 'Blackjack Server'
 TITLE = 'Blackjack-1.0'
 DEALER = 'Dealer'
@@ -41,12 +45,11 @@ LOST = 'Lost'
 TIE = 'Tie'
 WON = 'Won'
 SCORES = 'Scores'
-TEXT = 'text'
 STATE = 'state'
 ICN_PLUS_PATH = r'C:\seminar_client_server\Client-Server_Blackjack\images\icons\icn_plus.png'
 ICN_MINUS_PATH = r'C:\seminar_client_server\Client-Server_Blackjack\images\icons\icn_minus.png'
 
-# client/server
+# Client/Server
 HEADER = 64
 FORMAT = 'utf-8'
 DISCONNECT_MSG = '!DISCONNECT!'
@@ -56,7 +59,6 @@ MAX_PLAYERS = 3
 MAX_CLIENTS = 3
 MIN_USERNAME_LEN = 4
 
-
 MIN_BET = 5.0
 MAX_BET = 100.0
 DEALER_TURN = 'dealer_turn'
@@ -65,7 +67,7 @@ RESULTS = 'results'
 PRIZE = 'prize'
 BET = 'bet'
 
-# card attributes
+# Card's attributes
 SUIT = 'suit'
 VALUE = 'value'
 TEXT = 'text'
