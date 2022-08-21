@@ -8,20 +8,34 @@ import json
 import file_utils
 import logging
 
+# server
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5050
 ADDR = (HOST, PORT)
+
+# helping variables
 output_lock = threading.Semaphore(value=1)
+users_playing = []  # a list contains users which opened a client to play
 
-users_playing = []
-
+# logger
 LOG_FILENAME = r'logs\server.log'
+# noinspection SpellCheckingInspection
 LOG_FORMAT = '%(asctime)s : %(levelname)s\t:%(message)s'
-
 logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG, format=LOG_FORMAT)
 
 
 def _my_print(msg, level):
+    """
+    My print function which prints the message by the logging level.
+    Acquires a lock before printing because system is working with threads.
+
+    Parameters
+    ----------
+    msg : str
+        The message to print
+    level : Literal
+        The logging level
+    """
     output_lock.acquire()
 
     if level is None:
@@ -42,10 +56,10 @@ def _my_print(msg, level):
 
 def on_ct_button_clicked():
     """
-    on create table button clicked.
-    starting a new thread for the client.
-    main thread is server's GUI.
-    second thread is the server itself.
+    On create table button clicked.\n
+    Starting a new thread for the client.\n
+    Main thread is server's GUI.\n
+    Second thread is the server itself.\n
     """
     username = username_entry.get()
 
@@ -76,6 +90,16 @@ def on_ct_button_clicked():
 
 
 def _load_user_money(username):
+    """
+    Loads users file to search for the user.
+    Returns his amount of money found in file.\n
+    If not found -> user is a new one -> Returns starter money amount.
+
+    Parameters
+    ----------
+    username : str
+        The user's name which started a client
+    """
     users = file_utils.load_users_from_file()
     if username in users:
         return users[username]
@@ -91,10 +115,14 @@ def start_new_client(num_of_players, num_of_decks, username, user_money):
 
 def _get_model_info(conn):
     """
-    first thing receiving from client is model information dictionary
-    input: conn- connection to the client
-    output: model_info_dict- dictionary containing number of players, number of decks and user info
-    for the model of the client's table
+    First thing receiving from client is model information dictionary.\n
+    output: model_info_dict - a dictionary containing number of players, number of decks and user info
+    for the model of the client's table.
+
+    Parameters
+    ----------
+    conn : any
+        The connection to the client
     """
     numbers_dict = None
     while True:
@@ -177,14 +205,10 @@ def start_server():
     _my_print(f'[LISTENING] server is listening on {HOST}', logging.INFO)
 
     server.listen()
-    server_on = True
     while True:
         try:
             conn, addr = server.accept()
         except OSError:
-            server_on = False
-
-        if not server_on:
             break
 
         thread = threading.Thread(target=handle_client, args=(conn, addr))
