@@ -108,7 +108,7 @@ def _load_user_money(username):
 
 
 def start_new_client(num_of_players, num_of_decks, username, user_money):
-    path = r'C:\seminar_client_server\Client-Server_Blackjack\controller.py'
+    path = 'controller.py'
     os.system(f'python {path} {num_of_players} {num_of_decks} {username} {user_money}')
     pass
 
