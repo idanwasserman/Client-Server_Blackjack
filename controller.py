@@ -26,27 +26,34 @@ class Controller:
     def main(self):
         self.view.main()
 
-    """
-    User clicked a button. This function is called by the view.
-    input: caption of button which user has clicked
-    """
     def on_button_click(self, caption):
         """
-        if game has started -> cannot start again or quit
-        if game hasn't started -> can only start or quit
+        User clicked a button. This function is called by the View.\n
+        if game has started -> cannot start again or quit.\n
+        if game hasn't started -> can only start or quit.\n
+
+        Parameters
+        ----------
+        caption : string
+            the button's caption which user has clicked
         """
         b1 = bool(caption == START or caption == QUIT)
         b2 = self.game_on
         if b1 == b2:
             return
 
-        server_answer = self.client.send_recv_data(caption)
+        server_answer = dict(self.client.send_recv_data(caption))
         self._update_view(server_answer)
 
-    """
-    input: dictionary with relevant objects and data to update view
-    """
     def _update_view(self, dictionary):
+        """
+        Updates view
+
+        Parameters
+        ----------
+        dictionary : dict
+            a dictionary with relevant objects and data to update view
+        """
         switcher = dictionary[SWITCHER]
 
         if switcher == NEW_GAME:
@@ -78,24 +85,30 @@ class Controller:
 
         if SHOW_MSG in switcher:
             self.view.show_message(dictionary[MSG])
-            server_answer = self.client.send_recv_data(STAND)
+            server_answer = dict(self.client.send_recv_data(STAND))
             self._curr_player_turn_over(server_answer)
 
-    """
-    Current player has finished his turn.
-    If all the players have played -> It's dealer's turn
-    """
     def _curr_player_turn_over(self, dictionary):
+        """
+        Current player turn is over.
+        If all the players have played -> It's dealer's turn.
+
+        Parameters
+        ----------
+        dictionary : dict
+            a dictionary with relevant objects and data
+        """
+
         self.view.show_message(dictionary[MSG])
 
         if dictionary[IS_OVER]:
             self._dealer_turn()
 
-    """
-    Dealer's turn starts with revealing his 2nd card.
-    After that dealer hits cards till his score is at least 17.
-    """
     def _dealer_turn(self):
+        """
+        Dealer's turn starts with revealing his 2nd card.
+        After that dealer hits cards till his score is at least 17.
+        """
         self.view.reveal_hidden_card()
         while True:
             server_answer = self.client.send_recv_data(DEALER_TURN)
@@ -115,6 +128,14 @@ class Controller:
         self.game_on = False
 
     def _new_game_started(self, dictionary):
+        """
+        New game has been started.
+
+        Parameters
+        ----------
+        dictionary : dict
+            a dictionary with relevant objects and data
+        """
         self.game_on = True
         # Clear old cards
         self.view.clear_cards()

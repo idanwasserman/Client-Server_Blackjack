@@ -5,7 +5,24 @@ from constants import *
 
 
 class View(tk.Tk):
-    CARD_TOTAL_SPOTS = 5
+    """
+    A view class part of MVC design pattern for a blackjack game
+
+    ...
+
+    Attributes
+    ----------
+    controller : Controller
+        The MVC's controller - events' listener
+    num_of_players : int
+        number of players that are in the table
+    username : str
+        the user's name which started the game
+    user_money : float
+        the user's amount of money
+    """
+
+    CARD_TOTAL_SPOTS = 5    # max number of cards for each player
     PAD = 10
 
     button_captions = [

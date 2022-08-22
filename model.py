@@ -12,30 +12,59 @@ def _add_timestamp_to_msg(msg):
 
 
 class Model:
+    """
+    A model class part of MVC design pattern for a blackjack game
 
-    BLACKJACK = 21
-    MAX_CARDS = 5
+    ...
+
+    Attributes
+    ----------
+    num_of_players : int
+        number of players that are in the table
+    num_of_decks : int
+        number of decks in a single deck
+    username : str
+        the user's name which started the game
+    user_money : float
+        the user's amount of money
+    """
+
+    BLACKJACK = 21  # Blackjack value
+    MAX_CARDS = 5   # max number of cards for each player
 
     def __init__(self, num_of_players, num_of_decks, username, user_money):
         self.num_of_players = num_of_players
         self.num_of_decks = num_of_decks
+        self.user = user.User(username=username, money=user_money)
+        self.deck = []
         self.game_on = False
+        self.curr_player = 0
+
+        self._reset()
+
+    def _reset(self):
+        self.game_on = False
+
         # Scores
         self.dealer_score = 0
         self.players_scores = [0] * self.num_of_players
+
         # Cards
         self.dealer_cards = []
         self.players_cards = []
-        for player_num in range(num_of_players):
+        for player_num in range(self.num_of_players):
             self.players_cards.append([])
+
         # Cards' spots
         self.dealer_spot = 0
         self.players_spots = [0] * self.num_of_players
-        self.deck = card.create_deck(num_of_decks)
+
+        # Deck - check there are enough cards
+        if len(self.deck) < Model.MAX_CARDS * (self.num_of_players + 1):
+            self.deck = card.create_deck(self.num_of_decks)
+
         # Current player playing
         self.curr_player = 0
-        # User
-        self.user = user.User(username=username, money=user_money)
 
     @staticmethod
     def new_game_message():
@@ -51,6 +80,9 @@ class Model:
         }
 
     def _save_game(self):
+        """
+        saves the user's information
+        """
         users = file_utils.load_users_from_file()
         users[self.user.username] = self.user.get_money()
         file_utils.save_users_to_file(users)
@@ -82,6 +114,14 @@ class Model:
         return ret_dict
 
     def _hit_player(self):
+        """
+        Hits current player with a card from the deck.
+
+        Raises
+        -------
+        Exception
+            if deck is empty
+        """
         rand_card = self._grab_random_card_from_deck()
         if rand_card is None:
             raise Exception('card is None')
@@ -99,6 +139,14 @@ class Model:
                         break
 
     def _hit_dealer(self):
+        """
+        Hits the dealer with a card from the deck.
+
+        Raises
+        -------
+        Exception
+            if deck is empty
+        """
         rand_card = self._grab_random_card_from_deck()
         if rand_card is None:
             raise Exception('card is None')
@@ -107,6 +155,10 @@ class Model:
         self.dealer_spot += 1
 
     def stand(self):
+        """
+        Current player chose to finish his turn.
+        The function checks if all players have played.
+        """
         self.curr_player += 1
         if self.curr_player >= self.num_of_players:
             return {
@@ -123,8 +175,16 @@ class Model:
             }
 
     def start_new_game(self):
-        self.__init__(self.num_of_players, self.num_of_decks, self.user.username, self.user.get_money())
-        # print('Model - started a new game')
+        """
+        Hits current player with a card from the deck.
+
+        Raises
+        -------
+        Exception
+            if deck is empty
+        """
+        # self.__init__(self.num_of_players, self.num_of_decks, self.user.username, self.user.get_money())
+        self._reset()
         self.game_on = True
 
         # Each player (includes dealer) gets 2 cards
@@ -169,6 +229,10 @@ class Model:
             }
 
     def get_results(self):
+        """
+        This function writes a message contains the last game's results.
+        :return: a message represent the results of the last game
+        """
         msg = f'{SCORES}:\n'
         msg += f'{DEALER}: {self.dealer_score}\n'
         for player_num in range(self.num_of_players):
@@ -195,6 +259,10 @@ class Model:
         }
 
     def _get_player_prize(self):
+        """
+        This function calculates how much the user won depends on his and dealer's scores
+        :return: user's calculated prize
+        """
         main_player_score = self.players_scores[0]
         lower_than_dealer = main_player_score < self.dealer_score <= Model.BLACKJACK
         if main_player_score > Model.BLACKJACK or lower_than_dealer:
@@ -213,6 +281,11 @@ class Model:
                     return self.bet * 2.0
 
     def process_data(self, data):
+        """
+        Model's main function which called each time user is using the system.\n
+        :param data: data got from the Controller which needs to be processed
+        :return: relevant updates for the View
+        """
         if BET in data:
             return self._handle_player_bet(data)
 
@@ -229,6 +302,9 @@ class Model:
         return ret_val
 
     def _handle_player_bet(self, data):
+        """
+        Checks that user has got enough money to gamble on
+        """
         self.bet = float(data.split('=')[1])
         try:
             self.user.take_money(self.bet)
