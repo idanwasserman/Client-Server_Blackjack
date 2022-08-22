@@ -3,7 +3,7 @@ from constants import *
 
 SUITS = [DIAMONDS, CLUBS, HEARTS, SPADES]
 VALUES = range(2, 15)  # 11 = J, 12 = Q, 13 = K, 14 = A
-CARDS_IMAGES_PATH = r'C:\seminar_client_server\Client-Server_Blackjack\images\cards'
+CARDS_IMAGES_PATH = r'images\cards'
 CARD_SIZE = (70, 100)
 
 
