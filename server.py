@@ -257,6 +257,7 @@ if __name__ == '__main__':
     root = tk.Tk()
     root.title(SERVER_TITLE)
     root.geometry("450x350")
+    root.attributes("-topmost", True)
     root.configure()
 
     # username frame

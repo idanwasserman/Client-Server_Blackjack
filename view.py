@@ -34,6 +34,7 @@ class View(tk.Tk):
         self.title(TITLE)
         self.geometry(GEOMETRY)
         self.configure(background=GREEN)
+        self.attributes("-topmost", True)
 
         self.controller = controller
         self.hidden_card_path = None
