@@ -260,7 +260,7 @@ server_thread.start()
 if __name__ == '__main__':
     root = tk.Tk()
     root.title(SERVER_TITLE)
-    root.geometry("500x450")
+    root.geometry("550x500")
     root.attributes("-topmost", True)
     root.configure()
 
