@@ -46,8 +46,8 @@ TIE = 'Tie'
 WON = 'Won'
 SCORES = 'Scores'
 STATE = 'state'
-ICN_PLUS_PATH = r'C:\seminar_client_server\Client-Server_Blackjack\images\icons\icn_plus.png'
-ICN_MINUS_PATH = r'C:\seminar_client_server\Client-Server_Blackjack\images\icons\icn_minus.png'
+ICN_PLUS_PATH = r'images\icons\icn_plus.png'
+ICN_MINUS_PATH = r'images\icons\icn_minus.png'
 
 # Client/Server
 HEADER = 64
