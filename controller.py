@@ -174,4 +174,8 @@ if __name__ == '__main__':
         blackjack = Controller(nop, nod, un, um)
         blackjack.main()
     except ValueError as e:
-        print(e)
+        print(f'ValueError: {e}')
+    except IndexError as e:
+        print(f'IndexError: {e}')
+    except Exception as e:
+        print(f'Exception: {e}')
