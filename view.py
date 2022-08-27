@@ -22,8 +22,9 @@ class View(tk.Tk):
         the user's amount of money
     """
 
-    CARD_TOTAL_SPOTS = 5    # max number of cards for each player
+    CARD_TOTAL_SPOTS = MAX_CARDS    # max number of cards for each player
     PAD = 10
+    GEOMETRY = '1200x800'
 
     button_captions = [
         START, HIT, STAND, QUIT
@@ -32,7 +33,7 @@ class View(tk.Tk):
     def __init__(self, controller, num_of_players, username, user_money):
         super().__init__()
         self.title(TITLE)
-        self.geometry(GEOMETRY)
+        self.geometry(View.GEOMETRY)
         self.configure(background=GREEN)
         self.attributes("-topmost", True)
 
@@ -44,6 +45,7 @@ class View(tk.Tk):
         self.third_msg = ''
 
         self._make_main_frame()
+        self._make_guide_frame()
         self._make_text_label()
         self._make_dealer_frame()
         self._make_players_frames(num_of_players, username, user_money)
@@ -99,9 +101,11 @@ class View(tk.Tk):
         self.money_label[TEXT] = f'Money: {user_money}'
 
     def _make_text_label(self):
+        lf = tk.LabelFrame(self.main_frame, text=NOTIFICATIONS)
+        lf.pack(side=tk.LEFT, padx=View.PAD, pady=View.PAD)
         self.output_text = tk.StringVar()
-        self.label_text = tk.Label(self.main_frame, font=('arial', 14), textvariable=self.output_text)
-        self.label_text.pack(side=tk.LEFT, padx=View.PAD)
+        self.label_text = tk.Label(lf, font=('arial', 14), textvariable=self.output_text)
+        self.label_text.pack(side=tk.LEFT, padx=View.PAD, pady=View.PAD)
         self.output_text.set(self.first_msg + '\n\n' + self.second_msg)
 
     def _make_main_frame(self):
@@ -191,6 +195,12 @@ class View(tk.Tk):
         self.minus_icn = tk.PhotoImage(file=ICN_MINUS_PATH)
         self.minus_btn = Button(frame, command=self._minus_btn_clicked, image=self.minus_icn)
         self.minus_btn.pack(padx=self.PAD, pady=self.PAD, side=tk.LEFT)
+
+    def _make_guide_frame(self):
+        guide_frame = tk.LabelFrame(self.main_frame, text=GUIDE)
+        guide_frame.pack(padx=10, pady=10, anchor='w', side=tk.TOP)
+        label_text = tk.Label(guide_frame, text=CLIENT_GUIDE_TEXT, font=('arial', 10, 'bold'))
+        label_text.pack(padx=10, pady=10)
 
     def _plus_btn_clicked(self):
         curr_bet = float(self.bet_label[TEXT])

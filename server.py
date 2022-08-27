@@ -222,9 +222,13 @@ def start_server():
 def shut_down_server():
     # main thread is server's GUI
     # second thread is the server itself
-    if _get_number_of_active_connections() > 0:
+    active_connections_count = _get_number_of_active_connections()
+    if active_connections_count > 0:
         err_msg_log = '[ERROR] cannot shut down server ; '
-        err_msg = f'There are still {_get_number_of_active_connections()} active clients'
+        if active_connections_count > 1:
+            err_msg = f'There are still {active_connections_count} active clients'
+        else:
+            err_msg = f'There is still an active connection'
         _my_print(err_msg_log + err_msg, logging.ERROR)
         msg_label[TEXT] = err_msg
         return
@@ -256,9 +260,15 @@ server_thread.start()
 if __name__ == '__main__':
     root = tk.Tk()
     root.title(SERVER_TITLE)
-    root.geometry("450x350")
+    root.geometry("500x450")
     root.attributes("-topmost", True)
     root.configure()
+
+    # guide frame
+    guide_frame = tk.LabelFrame(root, text=GUIDE)
+    guide_frame.pack(padx=10, pady=10, anchor='w')
+    label_text = tk.Label(guide_frame, text=SERVER_GUIDE_TEXT, font=('arial', 10, 'bold'))
+    label_text.pack(padx=10, pady=10)
 
     # username frame
     user_frame = tk.Frame(root)

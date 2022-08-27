@@ -36,7 +36,6 @@ SERVER_TITLE = 'Blackjack Server'
 TITLE = 'Blackjack-1.0'
 DEALER = 'Dealer'
 PLAYER = 'Player'
-GEOMETRY = '1200x650'
 GREEN = 'green'
 BLUE = 'blue'
 RED = 'red'
@@ -46,6 +45,7 @@ TIE = 'Tie'
 WON = 'Won'
 SCORES = 'Scores'
 STATE = 'state'
+NOTIFICATIONS = 'Notifications'
 ICN_PLUS_PATH = r'images\icons\icn_plus.png'
 ICN_MINUS_PATH = r'images\icons\icn_minus.png'
 
@@ -59,6 +59,7 @@ MAX_PLAYERS = 3
 MAX_CLIENTS = 3
 MIN_USERNAME_LEN = 4
 
+MAX_CARDS = 5
 MIN_BET = 5.0
 MAX_BET = 100.0
 DEALER_TURN = 'dealer_turn'
@@ -85,3 +86,19 @@ SPADES = 'spades'
 USERNAME = 'username'
 USER_MONEY = 'user_money'
 STARTER_MONEY_AMOUNT = 1000.0
+
+# guides
+GUIDE = 'guide'
+SERVER_GUIDE_TEXT = """This is a blackjack server.
+Please enter your username,
+and select how many players and decks are in the game.
+If this is your first time playing,
+just choose any username and start to play."""
+CLIENT_GUIDE_TEXT = f"""This is a blackjack client.
+Press [{START}] * - To start a new game.
+Press [{HIT}] ** - To get another card from the dealer (You can get up to {MAX_CARDS} cards).
+Press [{STAND}] ** - To finish current player's turn.
+Press [{QUIT}] * - To exit from the game.
+
+*   Cannot be clicked during a game!
+**  Can be clicked (only) during a game!"""

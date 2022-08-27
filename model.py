@@ -30,7 +30,7 @@ class Model:
     """
 
     BLACKJACK = 21  # Blackjack value
-    MAX_CARDS = 5   # max number of cards for each player
+    MAX_CARDS = MAX_CARDS   # max number of cards for each player
 
     def __init__(self, num_of_players, num_of_decks, username, user_money):
         self.num_of_players = num_of_players
